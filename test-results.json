@@ -1,0 +1,36 @@
+{
+  "passed": 6,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Successful Generation",
+      "status": "PASS",
+      "details": "Generated 3 proposals, usage: 0/100"
+    },
+    {
+      "name": "Text Too Short Validation",
+      "status": "PASS",
+      "details": "Correctly rejected: Text must be at least 50 characters long"
+    },
+    {
+      "name": "Invalid UUID Validation",
+      "status": "PASS",
+      "details": "Correctly rejected invalid UUID"
+    },
+    {
+      "name": "Missing Token Auth Check",
+      "status": "PASS",
+      "details": "Correctly rejected: Invalid or expired authentication token"
+    },
+    {
+      "name": "Invalid Token Auth Check",
+      "status": "PASS",
+      "details": "Correctly rejected invalid token"
+    },
+    {
+      "name": "Deck Not Found Check",
+      "status": "PASS",
+      "details": "Correctly returned 404: Deck not found or access denied"
+    }
+  ]
+}

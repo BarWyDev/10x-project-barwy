@@ -1,0 +1,41 @@
+{
+  "passed": 6,
+  "failed": 1,
+  "tests": [
+    {
+      "name": "Max Text Length",
+      "status": "PASS",
+      "details": "Generated 4 proposals from 5000 chars"
+    },
+    {
+      "name": "Text Over Limit",
+      "status": "PASS",
+      "details": "Correctly rejected text over 5000 chars"
+    },
+    {
+      "name": "Boundary 50 Chars",
+      "status": "PASS",
+      "details": "Accepted 50-char text (status: 422)"
+    },
+    {
+      "name": "Whitespace Trimming",
+      "status": "FAIL",
+      "details": "Expected 200, got 422"
+    },
+    {
+      "name": "Empty Body Validation",
+      "status": "PASS",
+      "details": "Correctly rejected empty request body"
+    },
+    {
+      "name": "Malformed JSON",
+      "status": "PASS",
+      "details": "Correctly rejected malformed JSON"
+    },
+    {
+      "name": "Response Time",
+      "status": "PASS",
+      "details": "Completed in 2.73s (under 30s timeout)"
+    }
+  ]
+}
