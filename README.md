@@ -4,10 +4,14 @@ A modern, opinionated starter template for building fast, accessible, and AI-fri
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
+- [Astro](https://astro.build/) v5 - Modern web framework for building fast, content-focused websites
+- [React](https://react.dev/) v19 - UI library for building interactive components
 - [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+- [Tailwind CSS](https://tailwindcss.com/) v4 - Utility-first CSS framework
+- [Supabase](https://supabase.com/) - Backend as a Service (auth, database, storage)
+- [OpenAI](https://openai.com/) - AI-powered flashcard generation
+- [shadcn/ui](https://ui.shadcn.com/) - Beautifully designed components
+- [Zod](https://zod.dev/) - TypeScript-first schema validation
 
 ## Prerequisites
 
@@ -29,13 +33,46 @@ cd 10x-astro-starter
 npm install
 ```
 
-3. Run the development server:
+3. Set up environment variables:
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Supabase Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key-here
+
+# OpenAI API Configuration
+OPENAI_API_KEY=sk-your-openai-api-key-here
+```
+
+**Getting your credentials:**
+- **Supabase**: Get your project URL and anon key from [Supabase Dashboard](https://app.supabase.com/project/_/settings/api)
+- **OpenAI**: Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+
+4. Set up the database:
+
+```bash
+# Install Supabase CLI (if not already installed)
+npm install -g supabase
+
+# Start local Supabase (optional for local development)
+supabase start
+
+# Or link to your remote Supabase project
+supabase link --project-ref your-project-ref
+
+# Run migrations
+supabase db push
+```
+
+5. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Build for production:
+6. Build for production:
 
 ```bash
 npm run build

@@ -1,0 +1,106 @@
+---
+/**
+ * Flashcard Generator Demo Page
+ * 
+ * Full-featured demo of the AI flashcard generation flow:
+ * 1. Generate flashcards from text using AI
+ * 2. Review and edit proposals
+ * 3. Save accepted flashcards (demo mode - no actual save)
+ * 
+ * This page demonstrates the complete user journey without requiring authentication.
+ */
+import Layout from "../../layouts/Layout.astro";
+import { TestComponents } from '../../components/TestComponents';
+---
+
+<Layout>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div class="container mx-auto py-12 px-4">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+          Generator Fiszek AI
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Wygeneruj fiszki edukacyjne z dowolnego tekstu za pomocą sztucznej inteligencji.
+          Wypróbuj pełny proces: generowanie → weryfikacja → zapisywanie.
+        </p>
+        <div class="mt-6 flex items-center justify-center gap-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            ✅ Demo Mode - Bez logowania
+          </span>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            🤖 AI Powered
+          </span>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-3">
+            📖 Jak to działa?
+          </h2>
+          <ol class="space-y-2 text-gray-700">
+            <li class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">1</span>
+              <span><strong>Wklej tekst</strong> - Minimum 50 znaków (np. notatki z lekcji, artykuł, definicja)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">2</span>
+              <span><strong>Kliknij "Generuj"</strong> - AI stworzy 2-5 fiszek z Twojego tekstu</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">3</span>
+              <span><strong>Zweryfikuj i edytuj</strong> - Przejrzyj propozycje, edytuj lub usuń niepotrzebne</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">4</span>
+              <span><strong>Zapisz</strong> - Zaakceptuj fiszki (w demo: tylko podgląd)</span>
+            </li>
+          </ol>
+          
+          <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p class="text-sm text-yellow-800">
+              <strong>💡 Wskazówka:</strong> Najlepsze rezultaty otrzymasz z tekstów edukacyjnych zawierających konkretne fakty, 
+              definicje lub koncepcje. Przykład: notatki z biologii, historii, języków obcych, itp.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo Component -->
+      <div class="max-w-4xl mx-auto">
+        <TestComponents client:load />
+      </div>
+
+      <!-- Footer Info -->
+      <div class="max-w-4xl mx-auto mt-12 text-center">
+        <p class="text-sm text-gray-500">
+          To jest wersja demonstracyjna. Aby zapisywać fiszki na stałe, 
+          <a href="/" class="text-blue-600 hover:text-blue-700 font-medium underline">zaloguj się</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* Custom animations for page */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .container > * {
+    animation: fadeIn 0.6s ease-out;
+  }
+</style>
+
+
