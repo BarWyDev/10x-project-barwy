@@ -2,14 +2,11 @@
  * LogoutButton - Przycisk wylogowania użytkownika
  * 
  * Funkcjonalność:
- * - Wylogowanie użytkownika
+ * - Wylogowanie użytkownika z Supabase Auth
  * - Przekierowanie do strony logowania
- * 
- * Backend (do implementacji później):
- * - Wywołanie supabase.auth.signOut()
- * - Przekierowanie do /login po wylogowaniu
  */
 import React, { useState } from 'react';
+import { supabaseClient } from '@/db/supabase.client';
 import { Button } from '@/components/ui/button';
 
 export function LogoutButton() {
@@ -19,14 +16,15 @@ export function LogoutButton() {
     setIsLoading(true);
 
     try {
-      // TODO: Backend - wywołanie supabase.auth.signOut()
-      console.log('Logout attempt');
+      const { error } = await supabaseClient.auth.signOut();
       
-      // Symulacja opóźnienia
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      // TODO: Po sukcesie - window.location.href = '/login'
-      console.log('User logged out successfully');
+      if (error) {
+        console.error('Logout error:', error);
+        return;
+      }
+
+      // Success - redirect to login page
+      window.location.href = '/login';
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

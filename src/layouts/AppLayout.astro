@@ -14,8 +14,13 @@ interface Props {
 
 const { title = "Generator Fiszek - Aplikacja" } = Astro.props;
 
-// W przyszłości: dane użytkownika będą dostępne z Astro.locals.user (dodane przez middleware)
-// const user = Astro.locals.user;
+// Get authenticated user from middleware
+const user = Astro.locals.user;
+
+// Defense in depth - redirect if no user (middleware should handle this, but double check)
+if (!user) {
+  return Astro.redirect('/login');
+}
 ---
 
 <!doctype html>

@@ -3,16 +3,15 @@
  * 
  * Funkcjonalność:
  * - Walidacja formularza za pomocą react-hook-form + zod
- * - Wyświetlanie błędów walidacji
+ * - Integracja z Supabase Auth
+ * - Wyświetlanie błędów walidacji i autentykacji
  * - Link do rejestracji i przypomnienia hasła
- * 
- * Backend (do implementacji później):
- * - Wywołanie supabase.auth.signInWithPassword()
- * - Przekierowanie do /app po sukcesie
  */
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '@/lib/validation/auth.schemas';
+import { supabaseClient } from '@/db/supabase.client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,8 +27,7 @@ export function LoginForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
-    // Integracja z zod będzie wymagała @hookform/resolvers
-    // Na razie zostawimy podstawową walidację HTML5
+    resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -37,16 +35,31 @@ export function LoginForm() {
     setError(null);
 
     try {
-      // TODO: Backend - wywołanie supabase.auth.signInWithPassword()
-      console.log('Login attempt:', { email: data.email });
-      
-      // Symulacja opóźnienia
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // TODO: Po sukcesie - window.location.href = '/app'
-      
-      // Tymczasowo - symulacja błędu dla demonstracji UI
-      setError('Nieprawidłowy email lub hasło');
+      const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (authError) {
+        
+        // Check for specific error cases
+        if (authError.message.includes('Email not confirmed')) {
+          setError('Email nie został potwierdzony. Sprawdź swoją skrzynkę i kliknij link aktywacyjny.');
+        } else if (authError.message.includes('Invalid login credentials')) {
+          setError('Nieprawidłowy email lub hasło. Jeśli dopiero się zarejestrowałeś, sprawdź czy potwierdziłeś email.');
+        } else {
+          // Generic error message for security reasons
+          setError('Nieprawidłowy email lub hasło');
+        }
+        return;
+      }
+
+      if (authData.session) {
+        // Success - redirect to app
+        // Wait a bit for session to be saved to cookies by @supabase/ssr
+        await new Promise(resolve => setTimeout(resolve, 300));
+        window.location.replace('/app');
+      }
     } catch (err) {
       setError('Wystąpił błąd podczas logowania. Spróbuj ponownie.');
     } finally {

@@ -2,18 +2,16 @@
  * RegisterForm - Formularz rejestracji nowego użytkownika
  * 
  * Funkcjonalność:
- * - Walidacja formularza z potwierdzeniem hasła
+ * - Walidacja formularza z potwierdzeniem hasła (react-hook-form + zod)
+ * - Integracja z Supabase Auth
  * - Wymagania dotyczące silnego hasła
- * - Link do logowania
- * 
- * Backend (do implementacji później):
- * - Wywołanie supabase.auth.signUp()
- * - Automatyczne zalogowanie i przekierowanie do /app
- * - Zgodnie z US-001: bez potwierdzenia email
+ * - Automatyczne zalogowanie i przekierowanie do /app (US-001)
  */
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormData } from '@/lib/validation/auth.schemas';
+import { supabaseClient } from '@/db/supabase.client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,27 +25,79 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<RegisterFormData>();
-
-  const password = watch('password');
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // TODO: Backend - wywołanie supabase.auth.signUp()
-      console.log('Registration attempt:', { email: data.email });
-      
-      // Symulacja opóźnienia
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // TODO: Po sukcesie - window.location.href = '/app'
-      
-      // Tymczasowo - symulacja błędu dla demonstracji UI
-      setError('Ten adres email jest już zarejestrowany');
+      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          // Explicitly set emailRedirectTo to current origin
+          emailRedirectTo: `${window.location.origin}/app`,
+          // Pass user metadata if needed
+          data: {
+            email: data.email,
+          }
+        }
+      });
+
+      if (authError) {
+        // Handle specific error cases
+        if (authError.message.includes('already registered')) {
+          setError('Ten adres email jest już zarejestrowany');
+        } else {
+          setError(authError.message || 'Wystąpił błąd podczas rejestracji');
+        }
+        return;
+      }
+
+      // US-001: Automatic login after registration
+      if (authData.session) {
+        // Success - user is automatically logged in with session from signUp
+        // Wait a bit for session to be saved to cookies by @supabase/ssr
+        await new Promise(resolve => setTimeout(resolve, 300));
+        window.location.replace('/app');
+      } else if (authData.user) {
+        // User created but no session - try to sign in with password
+        
+        const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+
+        if (signInError) {
+          // Check if email confirmation is required
+          if (signInError.message.includes('Email not confirmed')) {
+            setError('Konto utworzone! Sprawdź swoją skrzynkę email (http://127.0.0.1:54324) i kliknij link aktywacyjny, aby móc się zalogować.');
+          } else {
+            setError('Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.');
+            // Redirect to login page after 2 seconds
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 2000);
+          }
+          return;
+        }
+
+        if (signInData.session) {
+          // Success - user is now logged in
+          // Wait a bit for session to be saved to cookies by @supabase/ssr
+          await new Promise(resolve => setTimeout(resolve, 300));
+          window.location.replace('/app');
+        } else {
+          setError('Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.');
+        }
+      } else {
+        // No user created - this shouldn't happen
+        setError('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
+      }
     } catch (err) {
       setError('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
     } finally {
