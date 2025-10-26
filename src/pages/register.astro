@@ -1,0 +1,20 @@
+---
+/**
+ * Strona rejestracji
+ * Layout: AuthLayout (bez nawigacji dla zalogowanych użytkowników)
+ * Komponent: RegisterForm
+ * 
+ * W przyszłości: Middleware sprawdzi czy użytkownik jest już zalogowany
+ * i przekieruje go do /app
+ */
+import AuthLayout from "../layouts/AuthLayout.astro";
+import { RegisterForm } from "../components/auth/RegisterForm";
+
+export const prerender = false;
+---
+
+<AuthLayout title="Rejestracja - Generator Fiszek">
+  <RegisterForm client:load />
+</AuthLayout>
+
+

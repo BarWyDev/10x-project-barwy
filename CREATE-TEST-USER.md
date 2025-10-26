@@ -167,3 +167,6 @@ Jeśli masz problemy:
 - Upewnij się że RLS policies są wyłączone (allow all)
 
 
+
+
+

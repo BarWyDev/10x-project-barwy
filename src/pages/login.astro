@@ -1,0 +1,20 @@
+---
+/**
+ * Strona logowania
+ * Layout: AuthLayout (bez nawigacji dla zalogowanych użytkowników)
+ * Komponent: LoginForm
+ * 
+ * W przyszłości: Middleware sprawdzi czy użytkownik jest już zalogowany
+ * i przekieruje go do /app
+ */
+import AuthLayout from "../layouts/AuthLayout.astro";
+import { LoginForm } from "../components/auth/LoginForm";
+
+export const prerender = false;
+---
+
+<AuthLayout title="Logowanie - Generator Fiszek">
+  <LoginForm client:load />
+</AuthLayout>
+
+

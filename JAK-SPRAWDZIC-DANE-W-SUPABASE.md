@@ -215,3 +215,6 @@ Teraz wiesz jak sprawdzić wszystkie swoje dane w Supabase Studio!
 ```
 
 
+
+
+

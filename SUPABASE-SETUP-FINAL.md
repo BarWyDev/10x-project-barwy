@@ -326,3 +326,6 @@ LIMIT 20;
 Wszystko działa z prawdziwą bazą Supabase, generowaniem AI przez OpenAI, i pełnym UI flow.
 
 
+
+
+

@@ -1,0 +1,250 @@
+---
+/**
+ * Strona pomocnicza z linkami do wszystkich stron autentykacji
+ * Ułatwia testowanie i przeglądanie UI
+ */
+import Layout from "../layouts/Layout.astro";
+
+export const prerender = false;
+---
+
+<Layout title="Demo - Moduł Autentykacji">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div class="container mx-auto py-12 px-4">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-5xl font-bold text-gray-900 mb-4">
+          🔐 Moduł Autentykacji
+        </h1>
+        <p class="text-xl text-gray-600 mb-2">
+          Interfejs użytkownika - Demo
+        </p>
+        <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+          ✨ Implementacja UI - Backend będzie dodany później
+        </div>
+      </div>
+
+      <!-- Sekcje z linkami -->
+      <div class="max-w-4xl mx-auto space-y-8">
+        
+        <!-- Strony Autentykacji -->
+        <section class="bg-white rounded-xl shadow-md p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            📝 Strony Autentykacji
+          </h2>
+          <div class="grid md:grid-cols-2 gap-4">
+            <a 
+              href="/login" 
+              class="block p-6 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+            >
+              <div class="text-3xl mb-2">🔑</div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                Logowanie
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">
+                Formularz logowania z email i hasłem
+              </p>
+            </a>
+
+            <a 
+              href="/register" 
+              class="block p-6 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+            >
+              <div class="text-3xl mb-2">✍️</div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                Rejestracja
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">
+                Formularz rejestracji z walidacją hasła
+              </p>
+            </a>
+
+            <a 
+              href="/forgot-password" 
+              class="block p-6 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+            >
+              <div class="text-3xl mb-2">📧</div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                Zapomniałem hasła
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">
+                Formularz przypomnienia hasła przez email
+              </p>
+            </a>
+
+            <a 
+              href="/reset-password" 
+              class="block p-6 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+            >
+              <div class="text-3xl mb-2">🔄</div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                Resetuj hasło
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">
+                Formularz ustawienia nowego hasła
+              </p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Layouty -->
+        <section class="bg-white rounded-xl shadow-md p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            🎨 Layouty
+          </h2>
+          <div class="space-y-4">
+            <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                AuthLayout
+              </h3>
+              <p class="text-sm text-gray-600">
+                Minimalistyczny layout dla stron publicznych (login, register, forgot-password, reset-password).
+                Bez nawigacji dla zalogowanych użytkowników.
+              </p>
+            </div>
+
+            <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                AppLayout
+              </h3>
+              <p class="text-sm text-gray-600">
+                Layout dla aplikacji z pełną nawigacją, przyciskiem wylogowania.
+                Będzie używany dla wszystkich stron wymagających autentykacji (np. /app).
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Komponenty -->
+        <section class="bg-white rounded-xl shadow-md p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            ⚛️ Komponenty React
+          </h2>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-mono text-sm text-blue-900">LoginForm.tsx</div>
+              <p class="text-xs text-blue-700 mt-1">Formularz logowania</p>
+            </div>
+            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-mono text-sm text-blue-900">RegisterForm.tsx</div>
+              <p class="text-xs text-blue-700 mt-1">Formularz rejestracji</p>
+            </div>
+            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-mono text-sm text-blue-900">ForgotPasswordForm.tsx</div>
+              <p class="text-xs text-blue-700 mt-1">Przypomnienie hasła</p>
+            </div>
+            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-mono text-sm text-blue-900">ResetPasswordForm.tsx</div>
+              <p class="text-xs text-blue-700 mt-1">Reset hasła</p>
+            </div>
+            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+              <div class="font-mono text-sm text-blue-900">LogoutButton.tsx</div>
+              <p class="text-xs text-blue-700 mt-1">Przycisk wylogowania</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Status Implementacji -->
+        <section class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow-md p-8 border-2 border-green-200">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            ✅ Status Implementacji
+          </h2>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="text-green-600 text-xl">✓</span>
+              <span class="text-gray-700">Layouty: <code class="bg-white px-2 py-1 rounded">AuthLayout.astro</code> i <code class="bg-white px-2 py-1 rounded">AppLayout.astro</code></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-600 text-xl">✓</span>
+              <span class="text-gray-700">Wszystkie strony Astro (login, register, forgot-password, reset-password)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-600 text-xl">✓</span>
+              <span class="text-gray-700">Wszystkie komponenty React z formularzami</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-600 text-xl">✓</span>
+              <span class="text-gray-700">Schematy walidacji z Zod</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-600 text-xl">✓</span>
+              <span class="text-gray-700">React Hook Form dla zarządzania formularzami</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-600 text-xl">✓</span>
+              <span class="text-gray-700">Komponenty Shadcn/ui (Button, Input, Card, Alert, itp.)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-yellow-600 text-xl">⏳</span>
+              <span class="text-gray-700">Backend: Integracja z Supabase Auth (następny krok)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-yellow-600 text-xl">⏳</span>
+              <span class="text-gray-700">Middleware: Ochrona tras i zarządzanie sesją (następny krok)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dokumentacja -->
+        <section class="bg-white rounded-xl shadow-md p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            📚 Technologie
+          </h2>
+          <div class="grid md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <div class="font-semibold text-gray-900 mb-2">Frontend</div>
+              <ul class="space-y-1 text-gray-600">
+                <li>• Astro 5</li>
+                <li>• React 19</li>
+                <li>• TypeScript 5</li>
+              </ul>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900 mb-2">Styling</div>
+              <ul class="space-y-1 text-gray-600">
+                <li>• Tailwind CSS 4</li>
+                <li>• Shadcn/ui</li>
+                <li>• Responsive design</li>
+              </ul>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900 mb-2">Formularze</div>
+              <ul class="space-y-1 text-gray-600">
+                <li>• React Hook Form</li>
+                <li>• Zod validation</li>
+                <li>• Accessibility (ARIA)</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-12 text-gray-600">
+        <a href="/" class="text-blue-600 hover:underline font-medium">
+          ← Powrót do strony głównej
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .container > * {
+    animation: fadeIn 0.6s ease-out;
+  }
+</style>
+
+
