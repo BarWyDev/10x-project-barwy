@@ -1,9 +1,8 @@
 /**
- * GET /api/decks - List all decks
+ * GET /api/decks - List all decks for authenticated user
  * POST /api/decks - Create a new deck
  * 
- * SIMPLIFIED VERSION - No authentication required
- * Works with RLS policies disabled (allow all)
+ * Requires authentication. Uses RLS policies to ensure data isolation.
  */
 
 import type { APIRoute } from 'astro';
@@ -16,20 +15,36 @@ export const prerender = false;
 const createDeckSchema = z.object({
   name: z.string().trim().min(1, 'Deck name is required').max(100, 'Deck name too long'),
   description: z.string().trim().max(500, 'Description too long').optional(),
-  user_id: z.string().uuid('Invalid user ID').optional(), // Optional for now
 });
 
 /**
- * GET - List all decks
+ * GET - List all decks for the authenticated user
  */
 export const GET: APIRoute = async ({ locals }) => {
   try {
-    const supabase = locals.supabase;
+    // Check authentication
+    if (!locals.user) {
+      const errorResponse: ErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-    // Fetch all decks with flashcard count
+    const supabase = locals.supabase;
+    const userId = locals.user.id;
+
+    // Fetch user's decks with flashcard count
+    // RLS policies will automatically filter by user_id
     const { data: decks, error } = await supabase
       .from('decks')
       .select('*, flashcards(count)')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -75,7 +90,22 @@ export const GET: APIRoute = async ({ locals }) => {
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Check authentication
+    if (!locals.user) {
+      const errorResponse: ErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabase = locals.supabase;
+    const userId = locals.user.id;
 
     // Parse request body
     let body: unknown;
@@ -114,15 +144,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const { name, description, user_id } = validationResult.data;
+    const { name, description } = validationResult.data;
 
-    // Create deck in database
-    // For simplified version without auth, use test user_id if not provided
-    const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
+    // Create deck in database for authenticated user
     const deckData = {
       name: name.trim(),
       description: description?.trim() || null,
-      user_id: user_id || TEST_USER_ID, // Test user for no-auth mode
+      user_id: userId,
     };
 
     const { data: newDeck, error: insertError } = await supabase

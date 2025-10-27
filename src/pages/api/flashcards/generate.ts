@@ -50,19 +50,30 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // ========================================================================
-    // 1. USER ID (Simplified - no authentication)
+    // 1. AUTHENTICATION
     // ========================================================================
+    if (!locals.user) {
+      const errorResponse: ErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabase = locals.supabase;
     
     if (!supabase) {
       throw new Error('Supabase client not initialized');
     }
 
-    // For simplified version without auth, use test user
-    const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
-    const userId = TEST_USER_ID;
+    const userId = locals.user.id;
     
-    console.log('[GENERATE] Using test user:', userId);
+    console.log('[GENERATE] User:', userId);
 
     // ========================================================================
     // 2. PARSE AND VALIDATE REQUEST BODY

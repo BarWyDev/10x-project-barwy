@@ -22,9 +22,14 @@ import type { DeckDTO } from '@/types';
 export interface DeckSelectorProps {
   onDeckSelected: (deck: DeckDTO) => void;
   selectedDeckId?: string;
+  autoSelectFirst?: boolean; // If true, auto-select first deck on mount
 }
 
-export function DeckSelector({ onDeckSelected, selectedDeckId }: DeckSelectorProps) {
+export function DeckSelector({ 
+  onDeckSelected, 
+  selectedDeckId,
+  autoSelectFirst = true // Default to true for backward compatibility
+}: DeckSelectorProps) {
   const [decks, setDecks] = useState<DeckDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -50,14 +55,15 @@ export function DeckSelector({ onDeckSelected, selectedDeckId }: DeckSelectorPro
       const fetchedDecks = await getDecks();
       setDecks(fetchedDecks);
       
-      // Auto-select first deck ONLY on initial load if none selected
-      if (isInitialLoad && !selectedDeckId && fetchedDecks.length > 0) {
+      // Auto-select first deck ONLY on initial load if none selected AND autoSelectFirst is enabled
+      if (isInitialLoad && !selectedDeckId && fetchedDecks.length > 0 && autoSelectFirst) {
         onDeckSelected(fetchedDecks[0]);
       }
       setIsInitialLoad(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading decks:', err);
-      setError('Nie udało się załadować talii. Sprawdź połączenie z bazą danych.');
+      const errorMessage = err?.message || 'Nie udało się załadować talii';
+      setError(errorMessage + ' (Sprawdź czy jesteś zalogowany)');
     } finally {
       setIsLoading(false);
     }

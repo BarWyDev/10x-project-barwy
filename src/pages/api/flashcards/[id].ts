@@ -24,7 +24,22 @@ const updateFlashcardSchema = z.object({
  */
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
   try {
+    // Check authentication
+    if (!locals.user) {
+      const errorResponse: ErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabase = locals.supabase;
+    const userId = locals.user.id;
     const flashcardId = params.id;
 
     if (!flashcardId) {
@@ -77,10 +92,6 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    // For simplified version without auth, use test user
-    const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
-    const userId = TEST_USER_ID;
-
     // Update the flashcard
     const flashcardService = new FlashcardService(supabase);
     const updatedFlashcard = await flashcardService.updateFlashcard(
@@ -118,7 +129,22 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
  */
 export const DELETE: APIRoute = async ({ params, locals }) => {
   try {
+    // Check authentication
+    if (!locals.user) {
+      const errorResponse: ErrorResponse = {
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabase = locals.supabase;
+    const userId = locals.user.id;
     const flashcardId = params.id;
 
     if (!flashcardId) {
@@ -133,10 +159,6 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
-
-    // For simplified version without auth, use test user
-    const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
-    const userId = TEST_USER_ID;
 
     // Delete the flashcard
     const flashcardService = new FlashcardService(supabase);

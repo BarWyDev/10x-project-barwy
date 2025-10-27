@@ -25,9 +25,11 @@ export function FlashcardApp() {
   const [proposals, setProposals] = useState<FlashcardProposal[]>([]);
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
   const [createdFlashcards, setCreatedFlashcards] = useState<FlashcardDTO[]>([]);
+  const [returningFromGenerator, setReturningFromGenerator] = useState(false);
 
   const handleDeckSelected = (deck: DeckDTO) => {
     setSelectedDeck(deck);
+    setReturningFromGenerator(false); // Reset flag when deck is selected
     setCurrentView('generator');
   };
 
@@ -53,6 +55,7 @@ export function FlashcardApp() {
       setProposals([]);
     } else if (currentView === 'generator') {
       // Return to deck selection and clear selected deck
+      setReturningFromGenerator(true); // Mark that we're returning from generator
       setSelectedDeck(null);
       setCurrentView('deck-selection');
     }
@@ -63,6 +66,7 @@ export function FlashcardApp() {
     setSelectedDeck(null);
     setProposals([]);
     setCreatedFlashcards([]);
+    setReturningFromGenerator(false); // Reset flag when starting over
   };
 
   const handleGenerateMore = () => {
@@ -105,6 +109,7 @@ export function FlashcardApp() {
           key={selectedDeck?.id || 'no-deck'} // Force remount when deck changes
           onDeckSelected={handleDeckSelected}
           selectedDeckId={selectedDeck?.id}
+          autoSelectFirst={!returningFromGenerator} // Don't auto-select when returning from generator
         />
       )}
 

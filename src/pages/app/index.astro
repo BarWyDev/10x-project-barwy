@@ -18,9 +18,8 @@ if (!user) {
   return Astro.redirect('/login');
 }
 
-// For simplified version, use test user
-const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
-const userId = TEST_USER_ID;
+// Use authenticated user's ID
+const userId = user.id;
 
 // Get optional deck filter from URL
 const deckId = Astro.url.searchParams.get('deck');

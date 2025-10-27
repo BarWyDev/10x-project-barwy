@@ -23,14 +23,17 @@ const createFlashcardSchema = z.object({
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // ========================================================================
-    // 1. AUTHENTICATION (Simplified for test user)
+    // 1. AUTHENTICATION
     // ========================================================================
+    if (!locals.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
+
     const supabase = locals.supabase;
     if (!supabase) {
       throw new Error('Supabase client not initialized');
     }
-    const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
-    const userId = TEST_USER_ID;
+    const userId = locals.user.id;
 
     // ========================================================================
     // 2. PARSE AND VALIDATE REQUEST BODY
