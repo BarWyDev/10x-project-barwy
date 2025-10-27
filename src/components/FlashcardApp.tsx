@@ -52,8 +52,9 @@ export function FlashcardApp() {
       setCurrentView('generator');
       setProposals([]);
     } else if (currentView === 'generator') {
-      setCurrentView('deck-selection');
+      // Return to deck selection and clear selected deck
       setSelectedDeck(null);
+      setCurrentView('deck-selection');
     }
   };
 
@@ -101,6 +102,7 @@ export function FlashcardApp() {
       {/* Main Content */}
       {currentView === 'deck-selection' && (
         <DeckSelector 
+          key={selectedDeck?.id || 'no-deck'} // Force remount when deck changes
           onDeckSelected={handleDeckSelected}
           selectedDeckId={selectedDeck?.id}
         />

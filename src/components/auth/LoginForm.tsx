@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,15 +41,14 @@ export function LoginForm() {
       });
 
       if (authError) {
-        
         // Check for specific error cases
         if (authError.message.includes('Email not confirmed')) {
-          setError('Email nie został potwierdzony. Sprawdź swoją skrzynkę i kliknij link aktywacyjny.');
+          setError('Sprawdź swoją skrzynkę email i kliknij link aktywacyjny.');
         } else if (authError.message.includes('Invalid login credentials')) {
-          setError('Nieprawidłowy email lub hasło. Jeśli dopiero się zarejestrowałeś, sprawdź czy potwierdziłeś email.');
+          setError('Email lub hasło jest nieprawidłowe. Sprawdź dane i spróbuj ponownie.');
         } else {
           // Generic error message for security reasons
-          setError('Nieprawidłowy email lub hasło');
+          setError('Nie udało się zalogować. Sprawdź email i hasło.');
         }
         return;
       }
@@ -81,8 +80,10 @@ export function LoginForm() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           {error && (
-            <Alert variant="destructive" className="mb-4">
-              {error}
+            <Alert className="mb-4 border-amber-200 bg-amber-50">
+              <AlertDescription className="text-amber-800">
+                ⚠️ {error}
+              </AlertDescription>
             </Alert>
           )}
 

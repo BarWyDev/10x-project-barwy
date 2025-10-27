@@ -33,21 +33,21 @@ export function validateTextLength(
   if (length === 0 && min > 0) {
     return {
       isValid: false,
-      error: `${fieldName} jest wymagany`,
+      error: undefined, // Don't show error for empty field
     };
   }
 
   if (length < min) {
     return {
       isValid: false,
-      error: `${fieldName} musi zawierać minimum ${min} znaków (obecnie: ${length})`,
+      error: `Dodaj jeszcze ${min - length} znaków, aby móc wygenerować fiszki`,
     };
   }
 
   if (length > max) {
     return {
       isValid: false,
-      error: `${fieldName} nie może przekraczać ${max} znaków (obecnie: ${length})`,
+      error: `Tekst jest za długi o ${length - max} znaków`,
     };
   }
 

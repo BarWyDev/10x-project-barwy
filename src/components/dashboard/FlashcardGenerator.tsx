@@ -114,9 +114,9 @@ export function FlashcardGenerator({
           aria-invalid={!!validationErrors.text}
         />
         
-        {validationErrors.text && !error && (
-          <p id="text-error" className="text-sm text-red-600 mt-1">
-            {validationErrors.text}
+        {validationErrors.text && !error && text.length > 0 && (
+          <p id="text-error" className="text-sm text-blue-600 mt-1">
+            💡 {validationErrors.text}
           </p>
         )}
       </div>
@@ -151,12 +151,17 @@ export function FlashcardGenerator({
       </Button>
 
       {/* Helper text */}
-      <p className="text-xs text-gray-500 text-center">
-        {canGenerate 
-          ? `Potrzebujesz minimum ${MIN_LENGTH} znaków, aby wygenerować fiszki`
-          : 'Osiągnięto dzienny limit. Wróć jutro po więcej generacji.'
-        }
-      </p>
+      {text.length === 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+          <p className="font-medium mb-1">💡 Wskazówka:</p>
+          <p>Wklej swoje notatki lub tekst edukacyjny (minimum {MIN_LENGTH} znaków), a AI wygeneruje dla Ciebie gotowe fiszki do nauki!</p>
+        </div>
+      )}
+      {!canGenerate && (
+        <p className="text-xs text-amber-600 text-center">
+          Osiągnięto dzienny limit. Wróć jutro po więcej generacji.
+        </p>
+      )}
     </div>
   );
 }

@@ -1,46 +1,76 @@
 ---
 /**
- * Main Application Page
+ * My Flashcards Page
  * 
- * Full flashcard generation flow with real Supabase database:
- * 1. Select or create a deck
- * 2. Generate flashcards from text using AI
- * 3. Review and edit proposals
- * 4. Save to Supabase database
- * 
- * This is the PRODUCTION-READY version (no demo mode, no auth for now)
+ * Displays all user's flashcards with filtering and management options.
+ * Supports optional deck filtering via ?deck=<deck_id> URL parameter
  */
-import Layout from "../../layouts/Layout.astro";
-import { FlashcardApp } from '../../components/FlashcardApp';
+import AppLayout from "../../layouts/AppLayout.astro";
+import { MyFlashcardsView } from '../../components/dashboard/MyFlashcardsView';
+import { FlashcardService } from '../../lib/services/flashcard.service';
+import { DeckService } from '../../lib/services/deck.service';
+
+// Get authenticated user from middleware
+const user = Astro.locals.user;
+
+// Defense in depth - redirect if no user
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+// For simplified version, use test user
+const TEST_USER_ID = '11111111-1111-1111-1111-111111111111';
+const userId = TEST_USER_ID;
+
+// Get optional deck filter from URL
+const deckId = Astro.url.searchParams.get('deck');
+
+// Fetch deck info if filtering by deck
+let selectedDeck = null;
+if (deckId) {
+  try {
+    const deckService = new DeckService(Astro.locals.supabase);
+    selectedDeck = await deckService.getDeckById(deckId, userId);
+  } catch (e) {
+    console.error('Error fetching deck:', e);
+    // Invalid deck ID - redirect to all flashcards
+    return Astro.redirect('/app');
+  }
+}
+
+// Fetch flashcards from database
+const flashcardService = new FlashcardService(Astro.locals.supabase);
+let flashcards = [];
+let error = null;
+
+try {
+  flashcards = await flashcardService.getAllFlashcards(userId, deckId || undefined);
+} catch (e) {
+  console.error('Error fetching flashcards:', e);
+  error = e instanceof Error ? e.message : 'Failed to load flashcards';
+}
 ---
 
-<Layout>
+<AppLayout title="Moje Fiszki - Generator Fiszek">
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
     <div class="container mx-auto py-8 px-4">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">
-          Generator Fiszek z AI
-        </h1>
-        <p class="text-lg text-gray-600">
-          Tworz fiszki edukacyjne z dowolnego tekstu przy użyciu sztucznej inteligencji
-        </p>
-        <div class="mt-4 inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-          ✅ Produkcja - Zapis do bazy Supabase
+      {error ? (
+        <div class="max-w-2xl mx-auto">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+            <p class="text-red-800 font-medium">❌ Błąd ładowania fiszek</p>
+            <p class="text-red-600 text-sm mt-1">{error}</p>
+          </div>
         </div>
-      </div>
-
-      <!-- Main App -->
-      <FlashcardApp client:load />
-
-      <!-- Footer Info -->
-      <div class="mt-12 text-center text-sm text-gray-500">
-        <p>Używasz testowego użytkownika (ID: 11111111-1111-1111-1111-111111111111)</p>
-        <p className="mt-1">Wszystkie dane są zapisywane w bazie Supabase</p>
-      </div>
+      ) : (
+        <MyFlashcardsView 
+          flashcards={flashcards} 
+          selectedDeckName={selectedDeck?.name}
+          client:load 
+        />
+      )}
     </div>
   </div>
-</Layout>
+</AppLayout>
 
 <style>
   @keyframes fadeIn {

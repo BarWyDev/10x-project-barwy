@@ -57,5 +57,63 @@ export class DeckService {
 
     return data;
   }
+
+  /**
+   * Gets all decks for a user with flashcard count
+   * 
+   * @param userId - UUID of the user
+   * @returns Array of decks with flashcard counts
+   * 
+   * Note: Uses RLS policies to automatically filter by user_id.
+   */
+  async getAllDecks(userId: string) {
+    const { data, error } = await this.supabase
+      .from('decks')
+      .select(`
+        *,
+        flashcards:flashcards(count)
+      `)
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching decks:', error);
+      throw new Error('Could not fetch decks');
+    }
+
+    // Transform the data to include flashcard_count
+    return (data || []).map(deck => ({
+      ...deck,
+      flashcard_count: deck.flashcards?.[0]?.count || 0,
+      flashcards: undefined, // Remove the raw flashcards object
+    }));
+  }
+
+  /**
+   * Creates a new deck for a user
+   * 
+   * @param name - Name of the deck
+   * @param description - Optional description
+   * @param userId - UUID of the user
+   * @returns The newly created deck
+   */
+  async createDeck(name: string, description: string | null, userId: string) {
+    const { data, error } = await this.supabase
+      .from('decks')
+      .insert({
+        name,
+        description,
+        user_id: userId,
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.error('Error creating deck:', error);
+      throw new Error('Could not create deck');
+    }
+
+    return data;
+  }
 }
 

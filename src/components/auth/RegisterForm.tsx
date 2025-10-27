@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function RegisterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,10 +25,13 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
+
+  const password = watch('password', '');
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true);
@@ -51,9 +54,11 @@ export function RegisterForm() {
       if (authError) {
         // Handle specific error cases
         if (authError.message.includes('already registered')) {
-          setError('Ten adres email jest już zarejestrowany');
+          setError('Ten adres email jest już w użyciu. Możesz się zalogować lub użyć innego adresu.');
+        } else if (authError.message.includes('Password')) {
+          setError('Hasło jest za słabe. Spróbuj dodać więcej znaków lub symboli.');
         } else {
-          setError(authError.message || 'Wystąpił błąd podczas rejestracji');
+          setError(authError.message || 'Nie udało się utworzyć konta. Spróbuj ponownie.');
         }
         return;
       }
@@ -119,8 +124,10 @@ export function RegisterForm() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           {error && (
-            <Alert variant="destructive" className="mb-4">
-              {error}
+            <Alert className="mb-4 border-amber-200 bg-amber-50">
+              <AlertDescription className="text-amber-800">
+                ⚠️ {error}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -131,18 +138,18 @@ export function RegisterForm() {
               type="email"
               placeholder="twoj@email.pl"
               {...register('email', {
-                required: 'Email jest wymagany',
+                required: 'Wpisz swój adres email',
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Nieprawidłowy format email',
+                  message: 'Sprawdź format email (np. nazwa@domena.pl)',
                 },
               })}
               aria-invalid={errors.email ? 'true' : 'false'}
               disabled={isSubmitting}
             />
             {errors.email && (
-              <p className="text-sm text-destructive" role="alert">
-                {errors.email.message}
+              <p className="text-sm text-blue-600" role="alert">
+                💡 {errors.email.message}
               </p>
             )}
           </div>
@@ -154,27 +161,29 @@ export function RegisterForm() {
               type="password"
               placeholder="••••••••"
               {...register('password', {
-                required: 'Hasło jest wymagane',
+                required: 'Wpisz hasło',
                 minLength: {
                   value: 8,
-                  message: 'Hasło musi mieć co najmniej 8 znaków',
+                  message: 'Dodaj jeszcze kilka znaków (minimum 8)',
                 },
                 pattern: {
                   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                  message: 'Hasło musi zawierać małą literę, dużą literę i cyfrę',
+                  message: 'Hasło powinno zawierać: małą literę, dużą literę i cyfrę',
                 },
               })}
               aria-invalid={errors.password ? 'true' : 'false'}
               disabled={isSubmitting}
             />
             {errors.password && (
-              <p className="text-sm text-destructive" role="alert">
-                {errors.password.message}
+              <p className="text-sm text-blue-600" role="alert">
+                💡 {errors.password.message}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              Minimum 8 znaków, zawiera małą literę, dużą literę i cyfrę
-            </p>
+            {!errors.password && (
+              <p className="text-xs text-muted-foreground">
+                Minimum 8 znaków, zawiera małą literę, dużą literę i cyfrę
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -184,16 +193,16 @@ export function RegisterForm() {
               type="password"
               placeholder="••••••••"
               {...register('confirmPassword', {
-                required: 'Potwierdzenie hasła jest wymagane',
+                required: 'Wpisz hasło ponownie',
                 validate: (value) =>
-                  value === password || 'Hasła muszą być identyczne',
+                  value === password || 'Hasła nie są takie same - sprawdź jeszcze raz',
               })}
               aria-invalid={errors.confirmPassword ? 'true' : 'false'}
               disabled={isSubmitting}
             />
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive" role="alert">
-                {errors.confirmPassword.message}
+              <p className="text-sm text-blue-600" role="alert">
+                💡 {errors.confirmPassword.message}
               </p>
             )}
           </div>

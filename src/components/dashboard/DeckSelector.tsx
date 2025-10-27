@@ -35,6 +35,9 @@ export function DeckSelector({ onDeckSelected, selectedDeckId }: DeckSelectorPro
   const [newDeckName, setNewDeckName] = useState('');
   const [newDeckDescription, setNewDeckDescription] = useState('');
 
+  // Track if this is the initial load
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   // Load decks on mount
   useEffect(() => {
     loadDecks();
@@ -47,10 +50,11 @@ export function DeckSelector({ onDeckSelected, selectedDeckId }: DeckSelectorPro
       const fetchedDecks = await getDecks();
       setDecks(fetchedDecks);
       
-      // Auto-select first deck if none selected
-      if (!selectedDeckId && fetchedDecks.length > 0) {
+      // Auto-select first deck ONLY on initial load if none selected
+      if (isInitialLoad && !selectedDeckId && fetchedDecks.length > 0) {
         onDeckSelected(fetchedDecks[0]);
       }
+      setIsInitialLoad(false);
     } catch (err) {
       console.error('Error loading decks:', err);
       setError('Nie udało się załadować talii. Sprawdź połączenie z bazą danych.');
