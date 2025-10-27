@@ -6,12 +6,15 @@
  * - Integracja z Supabase Auth
  * - Wymagania dotyczące silnego hasła
  * - Automatyczne zalogowanie i przekierowanie do /app (US-001)
+ * 
+ * Refactored to use:
+ * - useRegistration custom hook for registration logic
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormData } from '@/lib/validation/auth.schemas';
-import { supabaseClient } from '@/db/supabase.client';
+import { useRegistration } from '@/lib/hooks/useRegistration';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,8 +22,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function RegisterForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { register: registerUser, isLoading, error } = useRegistration();
 
   const {
     register,
@@ -34,79 +36,13 @@ export function RegisterForm() {
   const password = watch('password', '');
 
   const onSubmit = async (data: RegisterFormData) => {
-    setIsSubmitting(true);
-    setError(null);
+    const result = await registerUser({
+      email: data.email,
+      password: data.password,
+    });
 
-    try {
-      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          // Explicitly set emailRedirectTo to current origin
-          emailRedirectTo: `${window.location.origin}/app`,
-          // Pass user metadata if needed
-          data: {
-            email: data.email,
-          }
-        }
-      });
-
-      if (authError) {
-        // Handle specific error cases
-        if (authError.message.includes('already registered')) {
-          setError('Ten adres email jest już w użyciu. Możesz się zalogować lub użyć innego adresu.');
-        } else if (authError.message.includes('Password')) {
-          setError('Hasło jest za słabe. Spróbuj dodać więcej znaków lub symboli.');
-        } else {
-          setError(authError.message || 'Nie udało się utworzyć konta. Spróbuj ponownie.');
-        }
-        return;
-      }
-
-      // US-001: Automatic login after registration
-      if (authData.session) {
-        // Success - user is automatically logged in with session from signUp
-        // Wait a bit for session to be saved to cookies by @supabase/ssr
-        await new Promise(resolve => setTimeout(resolve, 300));
-        window.location.replace('/app');
-      } else if (authData.user) {
-        // User created but no session - try to sign in with password
-        
-        const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
-
-        if (signInError) {
-          // Check if email confirmation is required
-          if (signInError.message.includes('Email not confirmed')) {
-            setError('Konto utworzone! Sprawdź swoją skrzynkę email (http://127.0.0.1:54324) i kliknij link aktywacyjny, aby móc się zalogować.');
-          } else {
-            setError('Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.');
-            // Redirect to login page after 2 seconds
-            setTimeout(() => {
-              window.location.href = '/login';
-            }, 2000);
-          }
-          return;
-        }
-
-        if (signInData.session) {
-          // Success - user is now logged in
-          // Wait a bit for session to be saved to cookies by @supabase/ssr
-          await new Promise(resolve => setTimeout(resolve, 300));
-          window.location.replace('/app');
-        } else {
-          setError('Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.');
-        }
-      } else {
-        // No user created - this shouldn't happen
-        setError('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
-      }
-    } catch (err) {
-      setError('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
-    } finally {
-      setIsSubmitting(false);
+    if (result?.success && result.redirect) {
+      window.location.replace(result.redirect);
     }
   };
 
@@ -145,7 +81,7 @@ export function RegisterForm() {
                 },
               })}
               aria-invalid={errors.email ? 'true' : 'false'}
-              disabled={isSubmitting}
+              disabled={isLoading}
             />
             {errors.email && (
               <p className="text-sm text-blue-600" role="alert">
@@ -172,7 +108,7 @@ export function RegisterForm() {
                 },
               })}
               aria-invalid={errors.password ? 'true' : 'false'}
-              disabled={isSubmitting}
+              disabled={isLoading}
             />
             {errors.password && (
               <p className="text-sm text-blue-600" role="alert">
@@ -198,7 +134,7 @@ export function RegisterForm() {
                   value === password || 'Hasła nie są takie same - sprawdź jeszcze raz',
               })}
               aria-invalid={errors.confirmPassword ? 'true' : 'false'}
-              disabled={isSubmitting}
+              disabled={isLoading}
             />
             {errors.confirmPassword && (
               <p className="text-sm text-blue-600" role="alert">
@@ -212,9 +148,9 @@ export function RegisterForm() {
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting}
+            disabled={isLoading}
           >
-            {isSubmitting ? 'Rejestracja...' : 'Zarejestruj się'}
+            {isLoading ? 'Rejestracja...' : 'Zarejestruj się'}
           </Button>
 
           <p className="text-sm text-center text-muted-foreground">

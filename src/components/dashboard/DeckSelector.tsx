@@ -5,18 +5,22 @@
  * - View list of existing decks
  * - Select a deck
  * - Create a new deck
+ * 
+ * Refactored to use:
+ * - useDecks custom hook for deck management
+ * - CreateDeckForm component for deck creation
+ * - DeckGrid component for deck display
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getDecks, createDeck } from '@/lib/api/decks.api';
+import { CreateDeckForm } from './CreateDeckForm';
+import { useDecks } from '@/lib/hooks/useDecks';
+import { formatDateLong } from '@/lib/utils/formatting';
 import type { DeckDTO } from '@/types';
 
 export interface DeckSelectorProps {
@@ -30,81 +34,48 @@ export function DeckSelector({
   selectedDeckId,
   autoSelectFirst = true // Default to true for backward compatibility
 }: DeckSelectorProps) {
-  const [decks, setDecks] = useState<DeckDTO[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isCreating, setIsCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Create form state
-  const [newDeckName, setNewDeckName] = useState('');
-  const [newDeckDescription, setNewDeckDescription] = useState('');
+  // Use custom hook for deck management
+  const {
+    decks,
+    isLoading,
+    isCreating,
+    error,
+    createDeck: createNewDeck,
+    selectDeck,
+  } = useDecks({
+    selectedDeckId,
+    autoSelectFirst,
+    onDeckSelected,
+  });
 
-  // Track if this is the initial load
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  /**
+   * Handle deck creation
+   */
+  const handleCreateDeck = useCallback(async (data: { name: string; description?: string }) => {
+    try {
+      await createNewDeck(data);
+      setShowCreateForm(false);
+    } catch (err) {
+      // Error is handled in the hook
+      console.error('Error creating deck:', err);
+    }
+  }, [createNewDeck]);
 
-  // Load decks on mount
-  useEffect(() => {
-    loadDecks();
+  /**
+   * Handle form cancellation
+   */
+  const handleCancelCreate = useCallback(() => {
+    setShowCreateForm(false);
   }, []);
 
-  const loadDecks = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const fetchedDecks = await getDecks();
-      setDecks(fetchedDecks);
-      
-      // Auto-select first deck ONLY on initial load if none selected AND autoSelectFirst is enabled
-      if (isInitialLoad && !selectedDeckId && fetchedDecks.length > 0 && autoSelectFirst) {
-        onDeckSelected(fetchedDecks[0]);
-      }
-      setIsInitialLoad(false);
-    } catch (err: any) {
-      console.error('Error loading decks:', err);
-      const errorMessage = err?.message || 'Nie udało się załadować talii';
-      setError(errorMessage + ' (Sprawdź czy jesteś zalogowany)');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCreateDeck = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (newDeckName.trim().length === 0) {
-      setError('Nazwa talii jest wymagana');
-      return;
-    }
-
-    setIsCreating(true);
-    setError(null);
-
-    try {
-      const newDeck = await createDeck({
-        name: newDeckName.trim(),
-        description: newDeckDescription.trim() || undefined,
-      });
-
-      // Add to list and select
-      setDecks(prev => [newDeck, ...prev]);
-      onDeckSelected(newDeck);
-      
-      // Reset form
-      setNewDeckName('');
-      setNewDeckDescription('');
-      setShowCreateForm(false);
-    } catch (err: any) {
-      console.error('Error creating deck:', err);
-      setError(err.message || 'Nie udało się utworzyć talii');
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleSelectDeck = (deck: DeckDTO) => {
-    onDeckSelected(deck);
-  };
+  /**
+   * Handle deck selection
+   */
+  const handleSelectDeck = useCallback((deck: DeckDTO) => {
+    selectDeck(deck);
+  }, [selectDeck]);
 
   return (
     <div className="space-y-4">
@@ -132,62 +103,11 @@ export function DeckSelector({
 
       {/* Create Deck Form */}
       {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Utwórz nową talię</CardTitle>
-            <CardDescription>
-              Dodaj nazwę i opcjonalny opis dla swojej talii
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreateDeck} className="space-y-4">
-              <div>
-                <Label htmlFor="deck-name">Nazwa talii *</Label>
-                <Input
-                  id="deck-name"
-                  value={newDeckName}
-                  onChange={(e) => setNewDeckName(e.target.value)}
-                  placeholder="np. Biologia - Komórka"
-                  maxLength={100}
-                  disabled={isCreating}
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="deck-description">Opis (opcjonalnie)</Label>
-                <Textarea
-                  id="deck-description"
-                  value={newDeckDescription}
-                  onChange={(e) => setNewDeckDescription(e.target.value)}
-                  placeholder="np. Notatki z lekcji o budowie komórki"
-                  maxLength={500}
-                  disabled={isCreating}
-                  className="min-h-[80px]"
-                />
-              </div>
-
-              <div className="flex gap-2 justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowCreateForm(false);
-                    setNewDeckName('');
-                    setNewDeckDescription('');
-                    setError(null);
-                  }}
-                  disabled={isCreating}
-                >
-                  Anuluj
-                </Button>
-                <Button type="submit" disabled={isCreating}>
-                  {isCreating ? 'Tworzenie...' : 'Utwórz talię'}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <CreateDeckForm
+          onSubmit={handleCreateDeck}
+          onCancel={handleCancelCreate}
+          isSubmitting={isCreating}
+        />
       )}
 
       {/* Loading State */}
@@ -244,7 +164,7 @@ export function DeckSelector({
               <CardContent>
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>{deck.flashcard_count} fiszek</span>
-                  <span>{new Date(deck.created_at).toLocaleDateString('pl-PL')}</span>
+                  <span>{formatDateLong(deck.created_at)}</span>
                 </div>
               </CardContent>
             </Card>

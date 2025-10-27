@@ -6,74 +6,40 @@
  * 2. AI generation
  * 3. Verification
  * 4. Database save
+ * 
+ * Refactored to use:
+ * - FlashcardFlowContext for state management
+ * - Eliminates prop drilling
  */
 
-import { useState } from 'react';
 import { DeckSelector } from './dashboard/DeckSelector';
 import { FlashcardGenerator } from './dashboard/FlashcardGenerator';
 import { VerificationView } from './verification/VerificationView';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
-import type { DeckDTO, FlashcardProposal, UsageInfo, FlashcardDTO } from '../types';
+import { FlashcardFlowProvider, useFlashcardFlow } from '@/contexts/FlashcardFlowContext';
+import { getFlashcardPlural } from '@/lib/utils/formatting';
 
-type AppView = 'deck-selection' | 'generator' | 'verification' | 'success';
-
-export function FlashcardApp() {
-  const [currentView, setCurrentView] = useState<AppView>('deck-selection');
-  const [selectedDeck, setSelectedDeck] = useState<DeckDTO | null>(null);
-  const [proposals, setProposals] = useState<FlashcardProposal[]>([]);
-  const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
-  const [createdFlashcards, setCreatedFlashcards] = useState<FlashcardDTO[]>([]);
-  const [returningFromGenerator, setReturningFromGenerator] = useState(false);
-
-  const handleDeckSelected = (deck: DeckDTO) => {
-    setSelectedDeck(deck);
-    setReturningFromGenerator(false); // Reset flag when deck is selected
-    setCurrentView('generator');
-  };
-
-  const handleGenerateSuccess = (newProposals: FlashcardProposal[], usage: UsageInfo) => {
-    setProposals(newProposals);
-    setUsageInfo(usage);
-    setCurrentView('verification');
-  };
-
-  const handleGenerateError = (error: string) => {
-    console.error('Generation error:', error);
-    // Error is already shown in FlashcardGenerator component
-  };
-
-  const handleSaveSuccess = (flashcards: FlashcardDTO[]) => {
-    setCreatedFlashcards(flashcards);
-    setCurrentView('success');
-  };
-
-  const handleCancel = () => {
-    if (currentView === 'verification') {
-      setCurrentView('generator');
-      setProposals([]);
-    } else if (currentView === 'generator') {
-      // Return to deck selection and clear selected deck
-      setReturningFromGenerator(true); // Mark that we're returning from generator
-      setSelectedDeck(null);
-      setCurrentView('deck-selection');
-    }
-  };
-
-  const handleStartOver = () => {
-    setCurrentView('deck-selection');
-    setSelectedDeck(null);
-    setProposals([]);
-    setCreatedFlashcards([]);
-    setReturningFromGenerator(false); // Reset flag when starting over
-  };
-
-  const handleGenerateMore = () => {
-    setCurrentView('generator');
-    setProposals([]);
-    setCreatedFlashcards([]);
-  };
+/**
+ * Main App Content (uses context)
+ */
+function FlashcardAppContent() {
+  const {
+    currentView,
+    selectedDeck,
+    proposals,
+    usageInfo,
+    createdFlashcards,
+    returningFromGenerator,
+    selectDeck,
+    generateSuccess,
+    generateError,
+    saveSuccess,
+    cancel,
+    startOver,
+    generateMore,
+  } = useFlashcardFlow();
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -106,10 +72,10 @@ export function FlashcardApp() {
       {/* Main Content */}
       {currentView === 'deck-selection' && (
         <DeckSelector 
-          key={selectedDeck?.id || 'no-deck'} // Force remount when deck changes
-          onDeckSelected={handleDeckSelected}
+          key={selectedDeck?.id || 'no-deck'}
+          onDeckSelected={selectDeck}
           selectedDeckId={selectedDeck?.id}
-          autoSelectFirst={!returningFromGenerator} // Don't auto-select when returning from generator
+          autoSelectFirst={!returningFromGenerator}
         />
       )}
 
@@ -125,10 +91,10 @@ export function FlashcardApp() {
                     <p className="text-sm text-gray-600">{selectedDeck.description}</p>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
-                    {selectedDeck.flashcard_count} fiszek w talii
+                    {selectedDeck.flashcard_count} {getFlashcardPlural(selectedDeck.flashcard_count)} w talii
                   </p>
                 </div>
-                <Button variant="outline" onClick={handleCancel}>
+                <Button variant="outline" onClick={cancel}>
                   Zmień talię
                 </Button>
               </div>
@@ -141,8 +107,8 @@ export function FlashcardApp() {
               <FlashcardGenerator
                 deckId={selectedDeck.id}
                 initialUsageInfo={usageInfo || undefined}
-                onGenerateSuccess={handleGenerateSuccess}
-                onGenerateError={handleGenerateError}
+                onGenerateSuccess={generateSuccess}
+                onGenerateError={generateError}
                 demoMode={false}
               />
             </CardContent>
@@ -154,8 +120,8 @@ export function FlashcardApp() {
         <VerificationView
           deckId={selectedDeck.id}
           initialProposals={proposals}
-          onSaveSuccess={handleSaveSuccess}
-          onCancel={handleCancel}
+          onSaveSuccess={saveSuccess}
+          onCancel={cancel}
           demoMode={false}
         />
       )}
@@ -169,28 +135,34 @@ export function FlashcardApp() {
                 Sukces!
               </h2>
               <p className="text-lg text-green-800 mb-4">
-                Zapisano {createdFlashcards.length} fiszek do talii "{selectedDeck.name}"
+                Zapisano {createdFlashcards?.length || 0} {getFlashcardPlural(createdFlashcards?.length || 0)} do talii "{selectedDeck.name}"
               </p>
               <p className="text-sm text-gray-600 mb-6">
-                Wszystkie fiszki zostały pomyślnie zapisane w bazie danych Supabase
+                Wszystkie fiszki zostały pomyślnie zapisane w bazie danych
               </p>
-              <div className="flex gap-4 justify-center">
-                <Button onClick={handleGenerateMore}>
-                  Wygeneruj więcej fiszek
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild size="lg">
+                  <a href="/app">
+                    Zobacz moje fiszki
+                  </a>
                 </Button>
-                <Button variant="outline" onClick={handleStartOver}>
-                  Wróć do wyboru talii
+                <Button variant="outline" onClick={generateMore}>
+                  Wygeneruj więcej
+                </Button>
+                <Button variant="outline" onClick={startOver}>
+                  Zmień talię
                 </Button>
               </div>
             </AlertDescription>
           </Alert>
 
           {/* Created Flashcards Preview */}
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4">Zapisane fiszki:</h3>
-              <div className="space-y-3">
-                {createdFlashcards.map((flashcard, index) => (
+          {createdFlashcards && createdFlashcards.length > 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-4">Zapisane fiszki:</h3>
+                <div className="space-y-3">
+                  {createdFlashcards.map((flashcard, index) => (
                   <div 
                     key={flashcard.id} 
                     className="p-4 border rounded-lg bg-gray-50"
@@ -211,10 +183,11 @@ export function FlashcardApp() {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
     </div>
@@ -250,6 +223,17 @@ function Step({ number, title, active, completed }: StepProps) {
 function Divider({ completed }: { completed: boolean }) {
   return (
     <div className={`h-0.5 w-16 ${completed ? 'bg-green-500' : 'bg-gray-200'}`} />
+  );
+}
+
+/**
+ * Main FlashcardApp Component (with Provider)
+ */
+export function FlashcardApp() {
+  return (
+    <FlashcardFlowProvider>
+      <FlashcardAppContent />
+    </FlashcardFlowProvider>
   );
 }
 
