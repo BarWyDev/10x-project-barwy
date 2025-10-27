@@ -136,3 +136,4 @@ if (percentage === 100) {
 }
 console.log('='.repeat(60) + '\n');
 
+

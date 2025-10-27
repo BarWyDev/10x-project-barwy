@@ -535,3 +535,4 @@ await expect(page).toHaveScreenshot('name.png')
 - Mockuj API gdy to możliwe dla szybszych testów
 - Zapisuj storage state dla testów wymagających autentykacji
 
+

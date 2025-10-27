@@ -352,3 +352,4 @@ Przed uznaniem projektu za "fully tested":
 
 Pamiętaj: Dobre testy to inwestycja, która zwraca się każdego dnia developmentu.
 
+

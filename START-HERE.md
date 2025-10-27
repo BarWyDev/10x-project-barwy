@@ -219,3 +219,4 @@ npm run test:e2e:ui
 
 Masz pytania? Zobacz dokumentację w `test/README.md`
 
+

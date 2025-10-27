@@ -292,3 +292,4 @@ npm run test:e2e:headed
 4. Dodaj auth fixtures dla testów E2E
 5. Rozważ dodanie visual regression testing
 
+

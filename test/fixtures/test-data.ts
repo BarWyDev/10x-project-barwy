@@ -50,3 +50,4 @@ export const mockGeneratedFlashcard = {
   back: 'Generated Answer',
 };
 
+
