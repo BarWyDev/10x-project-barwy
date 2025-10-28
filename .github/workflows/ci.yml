@@ -74,6 +74,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     
+    # Zmienne środowiskowe dla całego job'a
+    # Dzięki temu będą dostępne dla webServer uruchamianego przez Playwright
+    # Ustaw je w Settings > Secrets > Actions w GitHub
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -92,13 +101,6 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e
-        env:
-          # Zmienne środowiskowe dla testów E2E
-          # Ustaw je w Settings > Secrets > Actions w GitHub
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

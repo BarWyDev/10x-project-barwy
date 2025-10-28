@@ -1,250 +1,149 @@
-# CI/CD Setup - GitHub Actions
+# GitHub Actions Workflows - Dokumentacja
 
-## 📋 Przegląd
+## Przegląd
 
-Minimalny ale kompletny pipeline CI/CD dla projektu 10x-cards zbudowanego na:
-- **Astro 5** + **React 19** + **TypeScript**
-- **Tailwind 4** + **Shadcn/ui**
-- **Supabase** (PostgreSQL)
-- **Vitest** (testy jednostkowe) + **Playwright** (testy E2E)
+Ten katalog zawiera konfiguracje CI/CD dla projektu. Główny workflow (`ci.yml`) uruchamia linting, testy jednostkowe, testy E2E i buduje aplikację.
 
-## 🚀 Triggery
+## Pliki Workflow
 
-Pipeline uruchamia się:
-1. **Manualnie** - z zakładki Actions w GitHub (przycisk "Run workflow")
-2. **Automatycznie** - po każdym pushu na branch `master` lub `main`
+### `ci.yml` (Główny Workflow)
 
-## 📊 Pipeline Jobs
+Workflow uruchamiany automatycznie przy każdym push'u na `master/main` oraz możliwy do ręcznego uruchomienia.
 
-```mermaid
-graph LR
-    A[Lint] --> B[Unit Tests]
-    A --> C[E2E Tests]
-    B --> D[Build]
-    C --> D
-    D --> E[Summary]
+**Struktura:**
+
+1. **Lint** - ESLint sprawdza jakość kodu
+2. **Unit Tests** - Vitest uruchamia testy jednostkowe z coverage
+3. **E2E Tests** - Playwright uruchamia testy end-to-end
+4. **Build** - Buduje wersję produkcyjną
+5. **Summary** - Podsumowanie wszystkich kroków
+
+### `ci-with-local-supabase.yml.example` (Opcjonalny)
+
+Przykład workflow z lokalnym Supabase w Docker'ze. Bardziej skomplikowany, ale daje pełną izolację.
+
+## Konfiguracja Secrets
+
+W GitHub Settings > Secrets > Actions ustaw:
+
+- `SUPABASE_URL` - URL do Twojej instancji Supabase
+- `SUPABASE_ANON_KEY` - Publiczny klucz API Supabase
+
+## Ważne Zagadnienia
+
+### Problem z Playwright webServer
+
+**Symptom:** 
+```
+Error: Timed out waiting 120000ms for webServer
 ```
 
-### 1. **Lint** 🔍
-- Sprawdza jakość kodu używając ESLint
-- Blokuje dalsze joby jeśli znajdzie błędy
-- **Czas wykonania**: ~30s
+**Przyczyna:**
+Playwright automatycznie uruchamia serwer deweloperski (zdefiniowany w `playwright.config.ts`), ale potrzebuje zmiennych środowiskowych, żeby aplikacja Astro mogła się uruchomić.
 
-### 2. **Unit Tests** 🧪
-- Uruchamia testy jednostkowe (Vitest)
-- Generuje raport coverage
-- Uploaduje artifacts z coverage
-- **Czas wykonania**: ~1-2min
-
-### 3. **E2E Tests** 🎭
-- Uruchamia testy E2E (Playwright)
-- Instaluje tylko przeglądarkę Chromium (zgodnie z best practices)
-- Uploaduje raporty HTML i screenshots w przypadku błędów
-- **Czas wykonania**: ~2-3min
-
-### 4. **Build** 🏗️
-- Buduje wersję produkcyjną aplikacji
-- Uruchamia się tylko jeśli testy przeszły
-- Uploaduje build artifacts
-- **Czas wykonania**: ~1-2min
-
-### 5. **Summary** 📋
-- Generuje podsumowanie całego pipeline
-- Wyświetla status każdego joba
-- **Czas wykonania**: ~5s
-
-**Całkowity czas**: ~5-8 minut
-
-## 🔧 Konfiguracja
-
-### Wymagane GitHub Secrets
-
-Ustaw następujące zmienne w Settings > Secrets and variables > Actions:
-
-```bash
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-```
-
-#### Jak uzyskać te wartości:
-
-1. Zaloguj się do [Supabase Dashboard](https://supabase.com/dashboard)
-2. Wybierz swój projekt
-3. Przejdź do Settings > API
-4. Skopiuj:
-   - **Project URL** → `SUPABASE_URL`
-   - **anon/public key** → `SUPABASE_ANON_KEY`
-
-### Opcjonalne Secrets (dla testów E2E)
-
-Jeśli używasz dedykowanego środowiska testowego:
-
-```bash
-SUPABASE_TEST_URL=https://your-test-project.supabase.co
-SUPABASE_TEST_ANON_KEY=your-test-anon-key
-```
-
-## 📦 Artifacts
-
-Pipeline zachowuje następujące artifacts (przez 7 dni):
-
-1. **coverage-report** - Raport pokrycia kodu testami
-2. **playwright-report** - Raport HTML z testów E2E
-3. **test-results** - Screenshots i videos z failed testów
-4. **dist** - Zbudowana wersja produkcyjna
-
-### Jak pobrać artifacts:
-
-1. Przejdź do zakładki **Actions**
-2. Wybierz konkretny workflow run
-3. Scroll na dół do sekcji **Artifacts**
-4. Kliknij nazwę artifactu żeby pobrać
-
-## 🎯 Best Practices
-
-### Cache
-- Node modules są cache'owane między jobami
-- Znacznie przyspiesza instalację dependencies (~10x)
-
-### Parallel Execution
-- Testy unit i E2E uruchamiają się równolegle
-- Oszczędza ~2-3 minuty na każdym pipelineu
-
-### Fail Fast (opcjonalne)
-Jeśli chcesz przerwać pipeline po pierwszym błędzie, dodaj na początku workflow:
+**Rozwiązanie:**
+Zmienne środowiskowe muszą być ustawione na poziomie całego job'a, a nie tylko dla kroku z testami:
 
 ```yaml
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - master
-      - main
-defaults:
-  run:
-    shell: bash
+# ✅ POPRAWNIE - zmienne dla całego job'a
+test-e2e:
+  name: E2E Tests
+  runs-on: ubuntu-latest
+  env:
+    PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+    PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+  steps:
+    - name: Run E2E tests
+      run: npm run test:e2e
+
+# ❌ ŹLE - zmienne tylko dla kroku
+test-e2e:
+  name: E2E Tests
+  runs-on: ubuntu-latest
+  steps:
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 ```
 
-### Environment Variables
-- Używamy `PUBLIC_` prefix dla zmiennych dostępnych w przeglądarce
-- Zmienne bez prefix są dostępne tylko server-side
+**Dlaczego to ważne:**
+- Playwright uruchamia `webServer` jako osobny proces
+- Ten proces musi mieć dostęp do zmiennych środowiskowych
+- Zmienne z `env` na poziomie kroku nie są dziedziczone przez procesy potomne
 
-## 🔍 Debugging
+### Playwright Configuration
 
-### Sprawdzenie logów
+W `playwright.config.ts` mamy:
 
-1. Przejdź do zakładki **Actions**
-2. Wybierz konkretny workflow run
-3. Kliknij na job który failed
-4. Rozwiń step który pokazuje błąd
+```typescript
+webServer: {
+  command: "npm run dev",
+  url: "http://localhost:4321",
+  reuseExistingServer: !process.env.CI,
+  timeout: 120 * 1000,
+}
+```
 
-### Lokalne testowanie CI
+- `reuseExistingServer: !process.env.CI` - W CI zawsze uruchamiaj nowy serwer
+- `timeout: 120 * 1000` - 120 sekund na uruchomienie serwera
+- Serwer musi odpowiadać na `url` zanim testy się rozpoczną
 
-Możesz testować kroki pipeline lokalnie:
+## Troubleshooting
+
+### Timeout podczas uruchamiania serwera
+
+1. **Sprawdź secrets** - Upewnij się, że `SUPABASE_URL` i `SUPABASE_ANON_KEY` są ustawione w GitHub
+2. **Sprawdź logi** - Zobacz logi z kroku "Run E2E tests" w GitHub Actions
+3. **Uruchom lokalnie** - Sprawdź czy `npm run dev` działa lokalnie z tymi samymi zmiennymi
+
+### Testy przechodzą lokalnie, ale nie w CI
+
+1. **Zmienne środowiskowe** - W CI mogą być różne od lokalnych
+2. **Timing** - Serwer może wolniej się uruchamiać w CI
+3. **Baza danych** - Upewnij się, że dane testowe są tworzone w setup hooks
+
+### Playwright nie znajduje przeglądarki
 
 ```bash
-# Lint
-npm run lint
+npx playwright install --with-deps chromium
+```
 
-# Unit tests
+Ten krok musi być wykonany **przed** uruchomieniem testów.
+
+## Best Practices
+
+1. **Zmienne środowiskowe na poziomie job'a** - Dla kroków z automatycznym uruchamianiem serwera
+2. **Używaj `npm ci` zamiast `npm install`** - Szybsze i bardziej deterministyczne
+3. **Cache dla Node.js** - `actions/setup-node@v4` z `cache: 'npm'`
+4. **Retry w CI** - Playwright config ma `retries: process.env.CI ? 2 : 0`
+5. **Single worker w CI** - `workers: process.env.CI ? 1 : undefined` - unika race conditions
+6. **Upload artifacts** - Zawsze uploaduj raporty z testów (`if: always()`)
+
+## Uruchamianie Lokalnie
+
+```bash
+# Testy jednostkowe
 npm run test:run
 
-# E2E tests (wymaga uruchomionego serwera dev)
+# Testy E2E (wymaga uruchomionego serwera)
 npm run test:e2e
 
-# Build
-npm run build
+# Lub użyj skryptu który uruchamia serwer automatycznie
+# (Playwright zrobi to za Ciebie dzięki webServer config)
+npm run test:e2e
 ```
 
-### Act - Uruchom GitHub Actions lokalnie
+## Monitoring
 
-Zainstaluj [act](https://github.com/nektos/act) i uruchom:
+- **GitHub Actions UI** - Zobacz status w zakładce "Actions"
+- **Playwright Report** - Pobierz artifact "playwright-report"
+- **Coverage Report** - Pobierz artifact "coverage-report"
+- **Build Artifacts** - Pobierz artifact "dist"
 
-```bash
-act -j lint          # Test tylko linting
-act -j test-unit     # Test tylko unit tests
-act                  # Test całego workflow
-```
+## Przydatne Linki
 
-## 📈 Monitoring
-
-### GitHub Actions Usage
-
-- **Free tier**: 2,000 minut/miesiąc dla repozytorium prywatnego
-- **Unlimited** dla repozytorium publicznego
-- Szacowany koszt: ~5-8 minut per pipeline run
-
-### Status Badge
-
-Dodaj badge do README.md:
-
-```markdown
-![CI/CD Pipeline](https://github.com/USERNAME/REPO/actions/workflows/ci.yml/badge.svg)
-```
-
-## 🚧 Rozszerzenia (opcjonalne)
-
-### Deploy do DigitalOcean
-
-Dodaj job deploy po build:
-
-```yaml
-deploy:
-  name: Deploy to Production
-  runs-on: ubuntu-latest
-  needs: build
-  if: github.ref == 'refs/heads/master'
-  
-  steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-    
-    - name: Deploy to DigitalOcean
-      # Dodaj tutaj swoje kroki deployment
-```
-
-### Notification (Discord/Slack)
-
-Dodaj na końcu summary job:
-
-```yaml
-- name: Notify Discord
-  if: always()
-  uses: sarisia/actions-status-discord@v1
-  with:
-    webhook: ${{ secrets.DISCORD_WEBHOOK }}
-```
-
-### Dependency Review
-
-Dodaj job sprawdzający bezpieczeństwo dependencies:
-
-```yaml
-dependency-review:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions/dependency-review-action@v4
-```
-
-## 💡 Tips
-
-1. **Zawsze testuj lokalnie przed pushem** - oszczędzi to czas i minuty CI
-2. **Używaj draft PRs** - jeśli pracujesz nad feature i nie chcesz uruchamiać CI
-3. **Branch protection** - wymagaj przejścia CI przed mergem do mastera
-4. **Scheduled runs** - rozważ codzienne uruchomienie testów (np. o 6 rano)
-
-## 📚 Dodatkowe Zasoby
-
+- [Playwright CI Documentation](https://playwright.dev/docs/ci)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Playwright CI Guide](https://playwright.dev/docs/ci)
-- [Vitest CI Guide](https://vitest.dev/guide/cli.html#ci)
-- [Astro Deployment](https://docs.astro.build/en/guides/deploy/)
-
----
-
-**Status**: ✅ Production Ready
-**Last Updated**: 2025-10-28
-**Maintainer**: DevOps Team
+- [Supabase CI/CD Guide](https://supabase.com/docs/guides/cli/cicd-workflow)

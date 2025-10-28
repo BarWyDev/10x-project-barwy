@@ -97,9 +97,12 @@ jobs:
       - name: Start Supabase locally
         run: |
           supabase start
-          # Zapisz URL i klucze do environment
+          # Zapisz URL i klucze do environment (dla kolejnych kroków)
           echo "SUPABASE_URL=$(supabase status --output json | jq -r '.API_URL')" >> $GITHUB_ENV
           echo "SUPABASE_ANON_KEY=$(supabase status --output json | jq -r '.ANON_KEY')" >> $GITHUB_ENV
+          # Również ustaw PUBLIC_* dla webServer uruchamianego przez Playwright
+          echo "PUBLIC_SUPABASE_URL=$(supabase status --output json | jq -r '.API_URL')" >> $GITHUB_ENV
+          echo "PUBLIC_SUPABASE_ANON_KEY=$(supabase status --output json | jq -r '.ANON_KEY')" >> $GITHUB_ENV
 
       # NOWE: Uruchom migracje
       - name: Run migrations
@@ -112,12 +115,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       # Testy E2E będą używać lokalnego Supabase
+      # Zmienne zostały ustawione w kroku "Start Supabase locally"
       - name: Run E2E tests
         run: npm run test:e2e
-        env:
-          # Używamy zmiennych z lokalnego Supabase
-          PUBLIC_SUPABASE_URL: ${{ env.SUPABASE_URL }}
-          PUBLIC_SUPABASE_ANON_KEY: ${{ env.SUPABASE_ANON_KEY }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
