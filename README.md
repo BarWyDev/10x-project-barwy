@@ -1,5 +1,7 @@
 # 10x Astro Starter
 
+[![CI/CD Pipeline](https://github.com/YOUR-USERNAME/YOUR-REPO-NAME/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR-USERNAME/YOUR-REPO-NAME/actions/workflows/ci.yml)
+
 A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
 
 ## Tech Stack
@@ -80,11 +82,22 @@ npm run build
 
 ## Available Scripts
 
+### Development
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
+
+### Code Quality
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Fix ESLint issues
+
+### Testing
+- `npm run test` - Run unit tests in watch mode
+- `npm run test:run` - Run unit tests once
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:e2e` - Run E2E tests with Playwright
+- `npm run test:e2e:ui` - Run E2E tests in UI mode
+- `npm run test:all` - Run all tests (unit + E2E)
 
 ## Project Structure
 
@@ -97,7 +110,42 @@ npm run build
 │   ├── components/ # UI components (Astro & React)
 │   └── assets/     # Static assets
 ├── public/         # Public assets
+├── test/
+│   ├── unit/       # Unit tests (Vitest)
+│   └── e2e/        # E2E tests (Playwright)
+└── .github/
+    └── workflows/  # CI/CD pipeline
 ```
+
+## CI/CD Pipeline
+
+This project includes a complete CI/CD setup using GitHub Actions that automatically:
+
+- ✅ Lints code with ESLint
+- ✅ Runs unit tests with Vitest
+- ✅ Runs E2E tests with Playwright
+- ✅ Builds production bundle
+- ✅ Generates coverage and test reports
+
+### Quick Start
+
+1. **Set GitHub Secrets** (Settings > Secrets > Actions):
+   - `SUPABASE_URL` - Your Supabase project URL
+   - `SUPABASE_ANON_KEY` - Your Supabase anon key
+
+2. **Trigger Manually**: Actions > CI/CD Pipeline > Run workflow
+
+3. **Automatic**: Pipeline runs on every push to `master` or `main`
+
+**Total execution time:** 5-8 minutes
+
+### Documentation
+
+- 📖 [Quick Start Guide](.github/CI-CD-QUICK-START.md) - Get started in 3 steps
+- 📚 [Full Documentation](.github/workflows/README.md) - Technical details
+- ✅ [Setup Checklist](.github/SETUP-CHECKLIST.md) - Verify your setup
+- 🏗️ [Architecture](.github/ARCHITECTURE.md) - Diagrams and deep dive
+- 📊 [Implementation Summary](.github/CI-CD-SUMMARY.md) - Complete overview
 
 ## AI Development Support
 
