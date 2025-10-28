@@ -29,7 +29,7 @@ export default defineConfig({
   // Globalne ustawienia dla wszystkich projektów
   use: {
     // URL bazowy aplikacji
-    baseURL: process.env.BASE_URL || "http://localhost:4321",
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
 
     // Trace przy niepowodzeniu (do debugowania)
     trace: "on-first-retry",
@@ -59,7 +59,7 @@ export default defineConfig({
   // Serwer deweloperski (opcjonalnie)
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:4321",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     stdout: "ignore",

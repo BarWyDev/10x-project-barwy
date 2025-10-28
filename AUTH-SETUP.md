@@ -80,7 +80,7 @@ Jeśli planujesz używać funkcji resetowania hasła:
 ```bash
 # .env
 PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-PUBLIC_SUPABASE_KEY=your-anon-key-here
+PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 OPENROUTER_API_KEY=your-openrouter-api-key
 ```
 
@@ -92,12 +92,12 @@ OPENROUTER_API_KEY=your-openrouter-api-key
 - Uruchom `supabase status` w terminalu
 - Skopiuj wartości z output:
   - `API URL` → `PUBLIC_SUPABASE_URL`
-  - `Publishable key` → `PUBLIC_SUPABASE_KEY`
+  - `Publishable key` → `PUBLIC_SUPABASE_ANON_KEY`
 
 | Zmienna | Źródło | Opis |
 |---------|--------|------|
 | `PUBLIC_SUPABASE_URL` | `supabase status` → API URL | URL lokalnej instancji Supabase |
-| `PUBLIC_SUPABASE_KEY` | `supabase status` → Publishable key | Klucz publiczny (bezpieczny dla klienta) |
+| `PUBLIC_SUPABASE_ANON_KEY` | `supabase status` → Publishable key | Klucz publiczny (bezpieczny dla klienta) |
 | `OPENROUTER_API_KEY` | [OpenRouter Dashboard](https://openrouter.ai/) | API key do generowania fiszek AI |
 
 ### ⚠️ Bezpieczeństwo
@@ -111,7 +111,7 @@ OPENROUTER_API_KEY=your-openrouter-api-key
 ```bash
 # Supabase Configuration (LOCAL)
 PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-PUBLIC_SUPABASE_KEY=your-publishable-key-from-supabase-status
+PUBLIC_SUPABASE_ANON_KEY=your-publishable-key-from-supabase-status
 OPENROUTER_API_KEY=your-openrouter-api-key
 # OPENAI_API_KEY=your-openai-api-key  # Opcjonalnie
 ```
@@ -194,7 +194,7 @@ Aplikacja powinna być dostępna pod adresem: `http://localhost:3000`
 **Rozwiązanie:**
 1. Upewnij się, że plik `.env` istnieje i zawiera prawidłowe wartości z prefiksem `PUBLIC_`
 2. Zrestartuj serwer deweloperski (`Ctrl+C`, potem `npm run dev`)
-3. Sprawdź czy `PUBLIC_SUPABASE_URL` i `PUBLIC_SUPABASE_KEY` są ustawione
+3. Sprawdź czy `PUBLIC_SUPABASE_URL` i `PUBLIC_SUPABASE_ANON_KEY` są ustawione
 4. Upewnij się że używasz `Publishable key` a nie `anon key` (dla lokalnego Supabase)
 
 ### Problem: Przekierowanie do `/login` zamiast do `/app` po rejestracji

@@ -26,8 +26,9 @@ Przykład workflow z lokalnym Supabase w Docker'ze. Bardziej skomplikowany, ale 
 
 W GitHub Settings > Secrets > Actions ustaw:
 
-- `SUPABASE_URL` - URL do Twojej instancji Supabase
-- `SUPABASE_ANON_KEY` - Publiczny klucz API Supabase
+- `SUPABASE_URL` - URL do Twojej instancji Supabase (np. `https://xxx.supabase.co`)
+- `SUPABASE_ANON_KEY` - Publiczny klucz API Supabase (anon/publishable key)
+- `OPENAI_API_KEY` - (Opcjonalne) Klucz OpenAI API dla testów generowania AI
 
 ## Ważne Zagadnienia
 
@@ -38,10 +39,15 @@ W GitHub Settings > Secrets > Actions ustaw:
 Error: Timed out waiting 120000ms for webServer
 ```
 
-**Przyczyna:**
-Playwright automatycznie uruchamia serwer deweloperski (zdefiniowany w `playwright.config.ts`), ale potrzebuje zmiennych środowiskowych, żeby aplikacja Astro mogła się uruchomić.
+**Możliwe przyczyny:**
 
-**Rozwiązanie:**
+1. **Brak zmiennych środowiskowych** - Playwright automatycznie uruchamia serwer deweloperski (zdefiniowany w `playwright.config.ts`), ale potrzebuje zmiennych środowiskowych, żeby aplikacja Astro mogła się uruchomić.
+
+2. **Nieprawidłowy port** - Playwright musi słuchać na tym samym porcie co serwer deweloperski. W `astro.config.mjs` jest ustawiony `port: 3000`, więc w `playwright.config.ts` musi być `url: "http://localhost:3000"`.
+
+3. **Brak secrets w GitHub** - Sprawdź czy `SUPABASE_URL` i `SUPABASE_ANON_KEY` są ustawione w GitHub Settings > Secrets.
+
+**Rozwiązanie 1 - Zmienne środowiskowe:**
 Zmienne środowiskowe muszą być ustawione na poziomie całego job'a, a nie tylko dla kroku z testami:
 
 ```yaml
@@ -73,6 +79,21 @@ test-e2e:
 - Ten proces musi mieć dostęp do zmiennych środowiskowych
 - Zmienne z `env` na poziomie kroku nie są dziedziczone przez procesy potomne
 
+**Rozwiązanie 2 - Prawidłowy port:**
+Upewnij się że port w `playwright.config.ts` odpowiada portowi w `astro.config.mjs`:
+
+```typescript
+// astro.config.mjs
+export default defineConfig({
+  server: { port: 3000 }, // ← Port serwera
+
+// playwright.config.ts
+export default defineConfig({
+  webServer: {
+    url: "http://localhost:3000", // ← Ten sam port!
+  },
+```
+
 ### Playwright Configuration
 
 W `playwright.config.ts` mamy:
@@ -80,12 +101,13 @@ W `playwright.config.ts` mamy:
 ```typescript
 webServer: {
   command: "npm run dev",
-  url: "http://localhost:4321",
+  url: "http://localhost:3000", // Must match astro.config.mjs port!
   reuseExistingServer: !process.env.CI,
   timeout: 120 * 1000,
 }
 ```
 
+- `url` - **MUSI** odpowiadać portowi w `astro.config.mjs` (domyślnie 3000)
 - `reuseExistingServer: !process.env.CI` - W CI zawsze uruchamiaj nowy serwer
 - `timeout: 120 * 1000` - 120 sekund na uruchomienie serwera
 - Serwer musi odpowiadać na `url` zanim testy się rozpoczną

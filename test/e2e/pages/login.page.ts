@@ -27,7 +27,7 @@ export class LoginPage {
     this.passwordInput = page.getByLabel(/hasło|password/i);
     this.submitButton = page.getByRole("button", { name: /zaloguj|login/i });
     this.errorMessage = page.getByRole("alert");
-    this.forgotPasswordLink = page.getByRole("link", { name: /zapomniałem hasła|forgot password/i });
+    this.forgotPasswordLink = page.getByRole("link", { name: /zapomnia.*hasła|forgot password/i });
     this.registerLink = page.getByRole("link", { name: /zarejestruj|register/i });
   }
 
