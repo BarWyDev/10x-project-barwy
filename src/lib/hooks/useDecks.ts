@@ -1,6 +1,6 @@
 /**
  * useDecks Hook
- * 
+ *
  * Manages deck state including:
  * - Loading decks from API
  * - Creating new decks
@@ -8,9 +8,9 @@
  * - Auto-selection logic
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { getDecks, createDeck as createDeckApi } from '@/lib/api/decks.api';
-import type { DeckDTO } from '@/types';
+import { useState, useEffect, useCallback } from "react";
+import { getDecks, createDeck as createDeckApi } from "@/lib/api/decks.api";
+import type { DeckDTO } from "@/types";
 
 interface UseDeckOptions {
   selectedDeckId?: string;
@@ -33,27 +33,21 @@ export function useDecks(options: UseDeckOptions = {}) {
   const loadDecks = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const fetchedDecks = await getDecks();
       setDecks(fetchedDecks);
-      
+
       // Auto-select first deck ONLY on initial load if conditions met
-      if (
-        isInitialLoad && 
-        !selectedDeckId && 
-        fetchedDecks.length > 0 && 
-        autoSelectFirst &&
-        onDeckSelected
-      ) {
+      if (isInitialLoad && !selectedDeckId && fetchedDecks.length > 0 && autoSelectFirst && onDeckSelected) {
         onDeckSelected(fetchedDecks[0]);
       }
-      
+
       setIsInitialLoad(false);
-    } catch (err: any) {
-      console.error('Error loading decks:', err);
-      const errorMessage = err?.message || 'Nie udało się załadować talii';
-      setError(errorMessage + ' (Sprawdź czy jesteś zalogowany)');
+    } catch (err: unknown) {
+      console.error("Error loading decks:", err);
+      const errorMessage = (err as Error)?.message || "Nie udało się załadować talii";
+      setError(errorMessage + " (Sprawdź czy jesteś zalogowany)");
     } finally {
       setIsLoading(false);
     }
@@ -62,40 +56,46 @@ export function useDecks(options: UseDeckOptions = {}) {
   /**
    * Create new deck
    */
-  const createDeck = useCallback(async (data: { name: string; description?: string }) => {
-    setIsCreating(true);
-    setError(null);
+  const createDeck = useCallback(
+    async (data: { name: string; description?: string }) => {
+      setIsCreating(true);
+      setError(null);
 
-    try {
-      const newDeck = await createDeckApi(data);
-      
-      // Add to list
-      setDecks(prev => [newDeck, ...prev]);
-      
-      // Auto-select new deck
-      if (onDeckSelected) {
-        onDeckSelected(newDeck);
+      try {
+        const newDeck = await createDeckApi(data);
+
+        // Add to list
+        setDecks((prev) => [newDeck, ...prev]);
+
+        // Auto-select new deck
+        if (onDeckSelected) {
+          onDeckSelected(newDeck);
+        }
+
+        return newDeck;
+      } catch (err: unknown) {
+        console.error("Error creating deck:", err);
+        const errorMessage = (err as Error).message || "Nie udało się utworzyć talii";
+        setError(errorMessage);
+        throw err;
+      } finally {
+        setIsCreating(false);
       }
-      
-      return newDeck;
-    } catch (err: any) {
-      console.error('Error creating deck:', err);
-      const errorMessage = err.message || 'Nie udało się utworzyć talii';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsCreating(false);
-    }
-  }, [onDeckSelected]);
+    },
+    [onDeckSelected]
+  );
 
   /**
    * Select a deck
    */
-  const selectDeck = useCallback((deck: DeckDTO) => {
-    if (onDeckSelected) {
-      onDeckSelected(deck);
-    }
-  }, [onDeckSelected]);
+  const selectDeck = useCallback(
+    (deck: DeckDTO) => {
+      if (onDeckSelected) {
+        onDeckSelected(deck);
+      }
+    },
+    [onDeckSelected]
+  );
 
   // Load decks on mount
   useEffect(() => {
@@ -112,4 +112,3 @@ export function useDecks(options: UseDeckOptions = {}) {
     reloadDecks: loadDecks,
   };
 }
-

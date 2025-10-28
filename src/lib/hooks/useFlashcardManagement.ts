@@ -1,14 +1,14 @@
 /**
  * useFlashcardManagement Hook
- * 
+ *
  * Manages flashcard state including:
  * - Deletion with optimistic updates
  * - Expand/collapse state
  * - Loading states
  */
 
-import { useState, useCallback } from 'react';
-import type { FlashcardEntity } from '@/types';
+import { useState, useCallback } from "react";
+import type { FlashcardEntity } from "@/types";
 
 interface FlashcardWithDeck extends FlashcardEntity {
   deck: {
@@ -26,24 +26,24 @@ export function useFlashcardManagement(initialFlashcards: FlashcardWithDeck[]) {
    * Handle flashcard deletion
    */
   const handleDelete = useCallback(async (flashcardId: string) => {
-    setDeletingIds(prev => new Set(prev).add(flashcardId));
+    setDeletingIds((prev) => new Set(prev).add(flashcardId));
 
     try {
       const response = await fetch(`/api/flashcards/${flashcardId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete flashcard');
+        throw new Error("Failed to delete flashcard");
       }
 
       // Remove from state on success
-      setFlashcards(prev => prev.filter(f => f.id !== flashcardId));
+      setFlashcards((prev) => prev.filter((f) => f.id !== flashcardId));
     } catch (error) {
-      console.error('Error deleting flashcard:', error);
-      alert('Nie udało się usunąć fiszki. Spróbuj ponownie.');
+      console.error("Error deleting flashcard:", error);
+      alert("Nie udało się usunąć fiszki. Spróbuj ponownie.");
     } finally {
-      setDeletingIds(prev => {
+      setDeletingIds((prev) => {
         const next = new Set(prev);
         next.delete(flashcardId);
         return next;
@@ -55,7 +55,7 @@ export function useFlashcardManagement(initialFlashcards: FlashcardWithDeck[]) {
    * Toggle expanded state for a flashcard
    */
   const toggleExpanded = useCallback((flashcardId: string) => {
-    setExpandedIds(prev => {
+    setExpandedIds((prev) => {
       const next = new Set(prev);
       if (next.has(flashcardId)) {
         next.delete(flashcardId);
@@ -69,16 +69,22 @@ export function useFlashcardManagement(initialFlashcards: FlashcardWithDeck[]) {
   /**
    * Check if flashcard is being deleted
    */
-  const isDeleting = useCallback((flashcardId: string) => {
-    return deletingIds.has(flashcardId);
-  }, [deletingIds]);
+  const isDeleting = useCallback(
+    (flashcardId: string) => {
+      return deletingIds.has(flashcardId);
+    },
+    [deletingIds]
+  );
 
   /**
    * Check if flashcard is expanded
    */
-  const isExpanded = useCallback((flashcardId: string) => {
-    return expandedIds.has(flashcardId);
-  }, [expandedIds]);
+  const isExpanded = useCallback(
+    (flashcardId: string) => {
+      return expandedIds.has(flashcardId);
+    },
+    [expandedIds]
+  );
 
   return {
     flashcards,
@@ -88,4 +94,3 @@ export function useFlashcardManagement(initialFlashcards: FlashcardWithDeck[]) {
     isExpanded,
   };
 }
-

@@ -1,22 +1,22 @@
 /**
  * Flashcard Detail API Endpoint
- * 
+ *
  * Handles operations on a single flashcard:
  * - GET /api/flashcards/:id - Get flashcard details
  * - PATCH /api/flashcards/:id - Update a flashcard
  * - DELETE /api/flashcards/:id - Delete a flashcard
  */
 
-import type { APIRoute } from 'astro';
-import { z } from 'zod';
-import { FlashcardService } from '../../../lib/services/flashcard.service';
-import type { ErrorResponse } from '../../../types';
+import type { APIRoute } from "astro";
+import { z } from "zod";
+import { FlashcardService } from "../../../lib/services/flashcard.service";
+import type { ErrorResponse } from "../../../types";
 
 export const prerender = false;
 
 const updateFlashcardSchema = z.object({
-  front_content: z.string().trim().min(1, 'Front content cannot be empty').max(1000).optional(),
-  back_content: z.string().trim().min(1, 'Back content cannot be empty').max(2000).optional(),
+  front_content: z.string().trim().min(1, "Front content cannot be empty").max(1000).optional(),
+  back_content: z.string().trim().min(1, "Back content cannot be empty").max(2000).optional(),
 });
 
 /**
@@ -28,13 +28,13 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     if (!locals.user) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
+          code: "UNAUTHORIZED",
+          message: "Authentication required",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -45,13 +45,13 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     if (!flashcardId) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Flashcard ID is required',
+          code: "VALIDATION_ERROR",
+          message: "Flashcard ID is required",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -62,13 +62,13 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     } catch {
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid JSON in request body',
+          code: "VALIDATION_ERROR",
+          message: "Invalid JSON in request body",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -78,48 +78,43 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       const firstError = validationResult.error.errors[0];
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
+          code: "VALIDATION_ERROR",
+          message: "Invalid request data",
           details: {
-            field: firstError.path.join('.') || 'unknown',
+            field: firstError.path.join(".") || "unknown",
             reason: firstError.message,
           },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     // Update the flashcard
     const flashcardService = new FlashcardService(supabase);
-    const updatedFlashcard = await flashcardService.updateFlashcard(
-      flashcardId, 
-      userId, 
-      validationResult.data
-    );
+    const updatedFlashcard = await flashcardService.updateFlashcard(flashcardId, userId, validationResult.data);
 
-    console.log('[FLASHCARDS] Updated flashcard:', flashcardId);
+    console.log("[FLASHCARDS] Updated flashcard:", flashcardId);
 
     return new Response(JSON.stringify(updatedFlashcard), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
-    console.error('Unexpected error in PATCH /api/flashcards/:id:', error);
-    
+    console.error("Unexpected error in PATCH /api/flashcards/:id:", error);
+
     const errorResponse: ErrorResponse = {
       error: {
-        code: 'INTERNAL_ERROR',
-        message: error instanceof Error ? error.message : 'Failed to update flashcard',
+        code: "INTERNAL_ERROR",
+        message: error instanceof Error ? error.message : "Failed to update flashcard",
       },
     };
 
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };
@@ -133,13 +128,13 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     if (!locals.user) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
+          code: "UNAUTHORIZED",
+          message: "Authentication required",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -150,13 +145,13 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     if (!flashcardId) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Flashcard ID is required',
+          code: "VALIDATION_ERROR",
+          message: "Flashcard ID is required",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -164,27 +159,25 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     const flashcardService = new FlashcardService(supabase);
     await flashcardService.deleteFlashcard(flashcardId, userId);
 
-    console.log('[FLASHCARDS] Deleted flashcard:', flashcardId);
+    console.log("[FLASHCARDS] Deleted flashcard:", flashcardId);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
-    console.error('Unexpected error in DELETE /api/flashcards/:id:', error);
-    
+    console.error("Unexpected error in DELETE /api/flashcards/:id:", error);
+
     const errorResponse: ErrorResponse = {
       error: {
-        code: 'INTERNAL_ERROR',
-        message: error instanceof Error ? error.message : 'Failed to delete flashcard',
+        code: "INTERNAL_ERROR",
+        message: error instanceof Error ? error.message : "Failed to delete flashcard",
       },
     };
 
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };
-

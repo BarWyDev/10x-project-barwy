@@ -1,24 +1,24 @@
 ---
 /**
  * Flashcard Generator Page
- * 
+ *
  * Full flashcard generation flow with real Supabase database:
  * 1. Select or create a deck
  * 2. Generate flashcards from text using AI
  * 3. Review and edit proposals
  * 4. Save to Supabase database
- * 
+ *
  * This is the PRODUCTION-READY version
  */
 import AppLayout from "../../layouts/AppLayout.astro";
-import { FlashcardApp } from '../../components/FlashcardApp';
+import { FlashcardApp } from "../../components/FlashcardApp";
 
 // Get authenticated user from middleware
 const user = Astro.locals.user;
 
 // Defense in depth - redirect if no user
 if (!user) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 ---
 
@@ -27,9 +27,7 @@ if (!user) {
     <div class="container mx-auto py-8 px-4">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">
-          Generator Fiszek z AI
-        </h1>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Generator Fiszek z AI</h1>
         <p class="text-lg text-gray-600">
           Tworz fiszki edukacyjne z dowolnego tekstu przy użyciu sztucznej inteligencji
         </p>
@@ -58,5 +56,3 @@ if (!user) {
     animation: fadeIn 0.6s ease-out;
   }
 </style>
-
-

@@ -1,19 +1,19 @@
 /**
  * Test Components Page
- * 
+ *
  * Demonstrates all implemented dashboard and verification components
  */
 
-import { useState } from 'react';
-import { UsageLimitIndicator } from './dashboard/UsageLimitIndicator';
-import { CharacterCounter } from './dashboard/CharacterCounter';
-import { FlashcardList } from './dashboard/FlashcardList';
-import { FlashcardGenerator } from './dashboard/FlashcardGenerator';
-import { VerificationView } from './verification/VerificationView';
-import type { FlashcardDTO, UsageInfo, FlashcardProposal } from '../types';
+import { useState } from "react";
+import { UsageLimitIndicator } from "./dashboard/UsageLimitIndicator";
+import { CharacterCounter } from "./dashboard/CharacterCounter";
+import { FlashcardList } from "./dashboard/FlashcardList";
+import { FlashcardGenerator } from "./dashboard/FlashcardGenerator";
+import { VerificationView } from "./verification/VerificationView";
+import type { FlashcardDTO, UsageInfo, FlashcardProposal } from "../types";
 
 export function TestComponents() {
-  const [view, setView] = useState<'dashboard' | 'verification'>('dashboard');
+  const [view, setView] = useState<"dashboard" | "verification">("dashboard");
   const [proposals, setProposals] = useState<FlashcardProposal[]>([]);
 
   // Mock data
@@ -25,24 +25,24 @@ export function TestComponents() {
 
   const mockFlashcards: FlashcardDTO[] = [
     {
-      id: '11111111-1111-1111-1111-111111111111',
-      user_id: '00000000-0000-0000-0000-000000000000',
-      deck_id: '00000000-0000-0000-0000-000000000000',
-      front_content: 'Co to są mitochondria?',
-      back_content: 'Organelle komórkowe odpowiedzialne za produkcję ATP',
-      status: 'new',
+      id: "11111111-1111-1111-1111-111111111111",
+      user_id: "00000000-0000-0000-0000-000000000000",
+      deck_id: "00000000-0000-0000-0000-000000000000",
+      front_content: "Co to są mitochondria?",
+      back_content: "Organelle komórkowe odpowiedzialne za produkcję ATP",
+      status: "new",
       ai_generated: true,
       ai_accepted: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
     {
-      id: '22222222-2222-2222-2222-222222222222',
-      user_id: '00000000-0000-0000-0000-000000000000',
-      deck_id: '00000000-0000-0000-0000-000000000000',
-      front_content: 'Jaka jest stolica Polski?',
-      back_content: 'Warszawa',
-      status: 'new',
+      id: "22222222-2222-2222-2222-222222222222",
+      user_id: "00000000-0000-0000-0000-000000000000",
+      deck_id: "00000000-0000-0000-0000-000000000000",
+      front_content: "Jaka jest stolica Polski?",
+      back_content: "Warszawa",
+      status: "new",
       ai_generated: false,
       ai_accepted: null,
       created_at: new Date(Date.now() - 86400000).toISOString(),
@@ -58,27 +58,32 @@ export function TestComponents() {
   };
 
   const handleGenerateSuccess = (newProposals: FlashcardProposal[], usage: UsageInfo) => {
-    console.log('Generated proposals:', newProposals);
-    console.log('Usage info:', usage);
+    // eslint-disable-next-line no-console
+    console.log("Generated proposals:", newProposals);
+    // eslint-disable-next-line no-console
+    console.log("Usage info:", usage);
     setProposals(newProposals);
-    setView('verification');
+    setView("verification");
   };
 
   const handleSaveSuccess = (flashcards: FlashcardDTO[]) => {
-    console.log('Saved flashcards:', flashcards);
+    // eslint-disable-next-line no-console
+    console.log("Saved flashcards:", flashcards);
     alert(`Zapisano ${flashcards.length} fiszek!`);
-    setView('dashboard');
+    setView("dashboard");
     setProposals([]);
   };
 
-  if (view === 'verification' && proposals.length > 0) {
+  if (view === "verification" && proposals.length > 0) {
     return (
       <VerificationView
         deckId="00000000-0000-0000-0000-000000000000"
         initialProposals={proposals}
-        onSaveSuccess={handleSaveSuccess}
+        onSaveSuccess={() => {
+          handleSaveSuccess([]);
+        }}
         onCancel={() => {
-          setView('dashboard');
+          setView("dashboard");
           setProposals([]);
         }}
         demoMode={true}
@@ -117,7 +122,7 @@ export function TestComponents() {
       <section className="border rounded-lg p-6 bg-white shadow-sm">
         <h2 className="text-xl font-bold mb-4">3. FlashcardGenerator</h2>
         <p className="text-sm text-gray-600 mb-4">
-          Wypróbuj generator - wprowadź minimum 50 znaków tekstu i kliknij "Generuj".
+          Wypróbuj generator - wprowadź minimum 50 znaków tekstu i kliknij &ldquo;Generuj&rdquo;.
           <br />
           <strong>Uwaga:</strong> Wymaga działającego API backendu.
         </p>
@@ -125,7 +130,7 @@ export function TestComponents() {
           deckId="00000000-0000-0000-0000-000000000000"
           initialUsageInfo={mockUsageInfo}
           onGenerateSuccess={handleGenerateSuccess}
-          onGenerateError={(error) => alert('Błąd: ' + error)}
+          onGenerateError={(error) => alert("Błąd: " + error)}
           demoMode={true}
         />
       </section>
@@ -138,11 +143,13 @@ export function TestComponents() {
           pagination={mockPagination}
           isLoading={false}
           onEdit={(flashcard) => {
-            console.log('Edit:', flashcard);
+            // eslint-disable-next-line no-console
+            console.log("Edit:", flashcard);
             alert(`Edycja fiszki: ${flashcard.front_content}`);
           }}
           onDelete={async (id) => {
-            console.log('Delete:', id);
+            // eslint-disable-next-line no-console
+            console.log("Delete:", id);
             return new Promise((resolve) => {
               setTimeout(() => {
                 alert(`Usunięto fiszkę: ${id}`);
@@ -151,7 +158,8 @@ export function TestComponents() {
             });
           }}
           onPageChange={(page) => {
-            console.log('Page change:', page);
+            // eslint-disable-next-line no-console
+            console.log("Page change:", page);
           }}
         />
       </section>
@@ -163,9 +171,15 @@ export function TestComponents() {
           flashcards={[]}
           pagination={{ page: 1, limit: 20, total: 0, total_pages: 0 }}
           isLoading={false}
-          onEdit={() => {}}
-          onDelete={async () => {}}
-          onPageChange={() => {}}
+          onEdit={() => {
+            // Empty function for demo
+          }}
+          onDelete={async () => {
+            // Empty function for demo
+          }}
+          onPageChange={() => {
+            // Empty function for demo
+          }}
         />
       </section>
 
@@ -176,12 +190,17 @@ export function TestComponents() {
           flashcards={[]}
           pagination={{ page: 1, limit: 20, total: 0, total_pages: 0 }}
           isLoading={true}
-          onEdit={() => {}}
-          onDelete={async () => {}}
-          onPageChange={() => {}}
+          onEdit={() => {
+            // Empty function for demo
+          }}
+          onDelete={async () => {
+            // Empty function for demo
+          }}
+          onPageChange={() => {
+            // Empty function for demo
+          }}
         />
       </section>
     </div>
   );
 }
-

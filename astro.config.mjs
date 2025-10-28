@@ -18,6 +18,6 @@ export default defineConfig({
     mode: "standalone",
   }),
   devToolbar: {
-    enabled: false
-  }
+    enabled: false,
+  },
 });

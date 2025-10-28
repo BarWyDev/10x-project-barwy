@@ -1,12 +1,12 @@
 /**
  * DTO (Data Transfer Object) and Command Model Type Definitions
- * 
+ *
  * This file contains TypeScript types for data transfer objects and command models
  * used throughout the API. All types are derived from the database schema types
  * defined in src/db/database.types.ts to ensure type safety and consistency.
  */
 
-import type { Database, Tables, TablesInsert, TablesUpdate, Enums } from './db/database.types';
+import type { Tables, TablesInsert, TablesUpdate, Enums } from "./db/database.types";
 
 // ============================================================================
 // BASE ENTITY TYPES (derived from database schema)
@@ -16,19 +16,19 @@ import type { Database, Tables, TablesInsert, TablesUpdate, Enums } from './db/d
  * Deck entity as stored in the database
  * Derived from: Database.public.Tables.decks.Row
  */
-export type DeckEntity = Tables<'decks'>;
+export type DeckEntity = Tables<"decks">;
 
 /**
  * Flashcard entity as stored in the database
  * Derived from: Database.public.Tables.flashcards.Row
  */
-export type FlashcardEntity = Tables<'flashcards'>;
+export type FlashcardEntity = Tables<"flashcards">;
 
 /**
  * Flashcard status enum
  * Derived from: Database.public.Enums.flashcard_status
  */
-export type FlashcardStatus = Enums<'flashcard_status'>;
+export type FlashcardStatus = Enums<"flashcard_status">;
 
 // ============================================================================
 // PAGINATION TYPES
@@ -69,21 +69,21 @@ export interface DeckDTO extends DeckEntity {
  * Deck DTO without the flashcard_count field
  * Used in: POST /api/decks, PATCH /api/decks/:id responses
  */
-export type DeckWithoutCountDTO = Omit<DeckDTO, 'flashcard_count'>;
+export type DeckWithoutCountDTO = Omit<DeckDTO, "flashcard_count">;
 
 /**
  * Create Deck Command
  * Used in: POST /api/decks request body
  * Derived from: TablesInsert<'decks'> excluding auto-generated and system fields
  */
-export type CreateDeckCommand = Pick<TablesInsert<'decks'>, 'name' | 'description'>;
+export type CreateDeckCommand = Pick<TablesInsert<"decks">, "name" | "description">;
 
 /**
  * Update Deck Command
  * Used in: PATCH /api/decks/:id request body
  * Derived from: TablesUpdate<'decks'> allowing partial updates of name and description
  */
-export type UpdateDeckCommand = Pick<TablesUpdate<'decks'>, 'name' | 'description'>;
+export type UpdateDeckCommand = Pick<TablesUpdate<"decks">, "name" | "description">;
 
 /**
  * Paginated list of decks
@@ -107,20 +107,14 @@ export type FlashcardDTO = FlashcardEntity;
  * Used in: POST /api/flashcards request body
  * Derived from: TablesInsert<'flashcards'> with only user-provided fields
  */
-export type CreateFlashcardCommand = Pick<
-  TablesInsert<'flashcards'>,
-  'deck_id' | 'front_content' | 'back_content'
->;
+export type CreateFlashcardCommand = Pick<TablesInsert<"flashcards">, "deck_id" | "front_content" | "back_content">;
 
 /**
  * Update Flashcard Command
  * Used in: PATCH /api/flashcards/:id request body
  * Derived from: TablesUpdate<'flashcards'> allowing partial updates of content and status
  */
-export type UpdateFlashcardCommand = Pick<
-  TablesUpdate<'flashcards'>,
-  'front_content' | 'back_content' | 'status'
->;
+export type UpdateFlashcardCommand = Pick<TablesUpdate<"flashcards">, "front_content" | "back_content" | "status">;
 
 /**
  * Paginated list of flashcards
@@ -208,10 +202,7 @@ export interface BatchCreateFlashcardsResponse {
  * Simplified flashcard for learning sessions (excludes user_id)
  * Used in: GET /api/flashcards/due response
  */
-export type DueFlashcardDTO = Pick<
-  FlashcardEntity,
-  'id' | 'deck_id' | 'front_content' | 'back_content' | 'status'
->;
+export type DueFlashcardDTO = Pick<FlashcardEntity, "id" | "deck_id" | "front_content" | "back_content" | "status">;
 
 /**
  * Get Due Flashcards Response
@@ -226,7 +217,7 @@ export interface GetDueFlashcardsResponse {
  * Review Rating
  * Enum for spaced repetition algorithm ratings
  */
-export type ReviewRating = 'again' | 'hard' | 'good' | 'easy';
+export type ReviewRating = "again" | "hard" | "good" | "easy";
 
 /**
  * Record Review Command
@@ -288,21 +279,19 @@ export interface UserLimitsResponse {
  * Error codes used throughout the API
  */
 export type ErrorCode =
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NOT_FOUND'
-  | 'VALIDATION_ERROR'
-  | 'LIMIT_EXCEEDED'
-  | 'AI_GENERATION_FAILED'
-  | 'INTERNAL_ERROR';
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "VALIDATION_ERROR"
+  | "LIMIT_EXCEEDED"
+  | "AI_GENERATION_FAILED"
+  | "INTERNAL_ERROR";
 
 /**
  * Error details object
  * Contains additional context about the error
  */
-export interface ErrorDetails {
-  [key: string]: string | number | boolean | null | undefined;
-}
+export type ErrorDetails = Record<string, string | number | boolean | null | undefined>;
 
 /**
  * Error Response
@@ -335,7 +324,7 @@ export interface PaginationParams {
  */
 export interface SortingParams {
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
 }
 
 /**
@@ -362,4 +351,3 @@ export interface GetDueFlashcardsParams {
   deck_id?: string;
   limit?: number;
 }
-

@@ -1,30 +1,27 @@
 /**
  * POST /api/flashcards/generate
- * 
+ *
  * Generates flashcard proposals from provided text using AI.
  * Does NOT save flashcards to database - returns proposals for user review.
- * 
+ *
  * Features:
  * - AI-powered flashcard generation (OpenAI GPT-4o-mini)
  * - Daily limit enforcement (100 generations per user)
  * - Deck ownership verification
  * - Comprehensive error handling
- * 
+ *
  * Related endpoints:
  * - POST /api/flashcards/batch - Save accepted proposals
  * - GET /api/users/me/limits - Check available limits
  */
 
-import type { APIRoute } from 'astro';
-import { generateFlashcardsSchema } from '../../../lib/validation/flashcard.schemas';
-import { DeckService } from '../../../lib/services/deck.service';
-import { UsageService } from '../../../lib/services/usage.service';
-import { AIService } from '../../../lib/services/ai.service';
-import {
-  APIError,
-  ValidationError,
-} from '../../../lib/errors/api-errors';
-import type { GenerateFlashcardsResponse, ErrorResponse } from '../../../types';
+import type { APIRoute } from "astro";
+import { generateFlashcardsSchema } from "../../../lib/validation/flashcard.schemas";
+import { DeckService } from "../../../lib/services/deck.service";
+import { UsageService } from "../../../lib/services/usage.service";
+import { AIService } from "../../../lib/services/ai.service";
+import { APIError, ValidationError } from "../../../lib/errors/api-errors";
+import type { GenerateFlashcardsResponse, ErrorResponse, ErrorCode } from "../../../types";
 
 /**
  * Disable static prerendering for this API endpoint
@@ -34,7 +31,7 @@ export const prerender = false;
 
 /**
  * POST handler for flashcard generation
- * 
+ *
  * Request Flow:
  * 1. Authentication check (JWT token validation)
  * 2. Request body validation (Zod schema)
@@ -42,7 +39,7 @@ export const prerender = false;
  * 4. Daily usage limit check
  * 5. AI flashcard generation
  * 6. Response with proposals and usage info
- * 
+ *
  * @param request - Astro API request object
  * @param locals - Astro locals containing Supabase client
  * @returns JSON response with flashcard proposals or error
@@ -55,25 +52,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!locals.user) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
+          code: "UNAUTHORIZED",
+          message: "Authentication required",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     const supabase = locals.supabase;
-    
+
     if (!supabase) {
-      throw new Error('Supabase client not initialized');
+      throw new Error("Supabase client not initialized");
     }
 
     const userId = locals.user.id;
-    
-    console.log('[GENERATE] User:', userId);
+
+    console.log("[GENERATE] User:", userId);
 
     // ========================================================================
     // 2. PARSE AND VALIDATE REQUEST BODY
@@ -82,15 +79,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     try {
       body = await request.json();
     } catch {
-      throw new ValidationError('Invalid JSON in request body');
+      throw new ValidationError("Invalid JSON in request body");
     }
 
     // Validate with Zod schema
     const validationResult = generateFlashcardsSchema.safeParse(body);
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
-      throw new ValidationError('Invalid request data', {
-        field: firstError.path.join('.') || 'unknown',
+      throw new ValidationError("Invalid request data", {
+        field: firstError.path.join(".") || "unknown",
         reason: firstError.message,
       });
     }
@@ -134,49 +131,47 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return new Response(JSON.stringify(response), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
-
   } catch (error) {
     // ========================================================================
     // ERROR HANDLING
     // ========================================================================
-    
+
     // Handle known API errors with proper status codes and messages
     if (error instanceof APIError) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: error.code as any,
+          code: error.code as ErrorCode,
           message: error.message,
-          details: error.details as any,
+          details: error.details,
         },
       };
 
       return new Response(JSON.stringify(errorResponse), {
         status: error.statusCode,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
     }
 
     // Handle unexpected errors (log for debugging, don't expose internals)
-    console.error('Unexpected error in generate endpoint:', error);
-    
+    console.error("Unexpected error in generate endpoint:", error);
+
     const errorResponse: ErrorResponse = {
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred',
+        code: "INTERNAL_ERROR",
+        message: "An unexpected error occurred",
       },
     };
 
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
   }
 };
-

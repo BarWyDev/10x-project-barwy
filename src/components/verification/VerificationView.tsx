@@ -1,20 +1,19 @@
 /**
  * VerificationView Component
- * 
+ *
  * Main view for reviewing and editing AI-generated flashcard proposals.
  * Allows editing, deletion, and batch saving of proposals.
- * 
+ *
  * Refactored to use:
  * - useProposalManagement custom hook for state management
  * - ProposalCard component for individual proposals
  */
 
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { ProposalCard } from './ProposalCard';
-import { useProposalManagement } from '@/lib/hooks/useProposalManagement';
-import type { FlashcardProposal } from '@/types';
-
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { ProposalCard } from "./ProposalCard";
+import { useProposalManagement } from "@/lib/hooks/useProposalManagement";
+import type { FlashcardProposal } from "@/types";
 
 interface VerificationViewProps {
   initialProposals: FlashcardProposal[];
@@ -24,12 +23,12 @@ interface VerificationViewProps {
   demoMode?: boolean;
 }
 
-export const VerificationView = ({ 
-  initialProposals, 
-  deckId, 
-  onCancel, 
-  onSaveSuccess, 
-  demoMode = false 
+export const VerificationView = ({
+  initialProposals,
+  deckId,
+  onCancel,
+  onSaveSuccess,
+  demoMode = false,
 }: VerificationViewProps) => {
   // Use custom hook for proposal management
   const {
@@ -56,7 +55,9 @@ export const VerificationView = ({
         <p className="text-muted-foreground mt-1">
           Przejrzyj i edytuj fiszki przed zapisaniem. Możesz zmienić treść lub usunąć niepotrzebne fiszki.
         </p>
-        <p className="text-sm font-medium mt-2">Liczba fiszek: <span className="text-primary">{proposals.length}</span></p>
+        <p className="text-sm font-medium mt-2">
+          Liczba fiszek: <span className="text-primary">{proposals.length}</span>
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -65,8 +66,8 @@ export const VerificationView = ({
             key={proposal.id}
             proposal={proposal}
             index={index}
-            isSaving={getSaveState(proposal.id) === 'saving'}
-            isSaved={getSaveState(proposal.id) === 'saved'}
+            isSaving={getSaveState(proposal.id) === "saving"}
+            isSaved={getSaveState(proposal.id) === "saved"}
             onUpdate={updateProposal}
             onDelete={deleteProposal}
             onSave={saveSingle}
@@ -88,4 +89,3 @@ export const VerificationView = ({
     </div>
   );
 };
-

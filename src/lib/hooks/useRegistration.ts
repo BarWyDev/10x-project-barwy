@@ -1,6 +1,6 @@
 /**
  * useRegistration Hook
- * 
+ *
  * Manages user registration flow including:
  * - Sign up with Supabase
  * - Automatic login after registration
@@ -8,15 +8,15 @@
  * - Error state management
  */
 
-import { useState, useCallback } from 'react';
-import { supabaseClient } from '@/db/supabase.client';
+import { useState, useCallback } from "react";
+import { supabaseClient } from "@/db/supabase.client";
 
 interface RegistrationData {
   email: string;
   password: string;
 }
 
-type RegistrationStatus = 'idle' | 'loading' | 'success' | 'error';
+type RegistrationStatus = "idle" | "loading" | "success" | "error";
 
 interface RegistrationState {
   status: RegistrationStatus;
@@ -26,34 +26,34 @@ interface RegistrationState {
 /**
  * Get user-friendly error message from Supabase error
  */
-function getErrorMessage(error: any): string {
-  const message = error?.message || '';
-  
-  if (message.includes('already registered')) {
-    return 'Ten adres email jest już w użyciu. Możesz się zalogować lub użyć innego adresu.';
+function getErrorMessage(error: unknown): string {
+  const message = (error as Error)?.message || "";
+
+  if (message.includes("already registered")) {
+    return "Ten adres email jest już w użyciu. Możesz się zalogować lub użyć innego adresu.";
   }
-  
-  if (message.includes('Password')) {
-    return 'Hasło jest za słabe. Spróbuj dodać więcej znaków lub symboli.';
+
+  if (message.includes("Password")) {
+    return "Hasło jest za słabe. Spróbuj dodać więcej znaków lub symboli.";
   }
-  
-  if (message.includes('Email not confirmed')) {
-    return 'Sprawdź swoją skrzynkę email i kliknij link aktywacyjny.';
+
+  if (message.includes("Email not confirmed")) {
+    return "Sprawdź swoją skrzynkę email i kliknij link aktywacyjny.";
   }
-  
-  return message || 'Nie udało się utworzyć konta. Spróbuj ponownie.';
+
+  return message || "Nie udało się utworzyć konta. Spróbuj ponownie.";
 }
 
 /**
  * Wait for session to be saved to cookies
  */
-async function waitForSessionSync(ms: number = 300): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+async function waitForSessionSync(ms = 300): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function useRegistration() {
   const [state, setState] = useState<RegistrationState>({
-    status: 'idle',
+    status: "idle",
     error: null,
   });
 
@@ -61,7 +61,7 @@ export function useRegistration() {
    * Register new user
    */
   const register = useCallback(async (data: RegistrationData) => {
-    setState({ status: 'loading', error: null });
+    setState({ status: "loading", error: null });
 
     try {
       // Attempt sign up
@@ -72,24 +72,24 @@ export function useRegistration() {
           emailRedirectTo: `${window.location.origin}/app`,
           data: {
             email: data.email,
-          }
-        }
+          },
+        },
       });
 
       if (authError) {
         const errorMessage = getErrorMessage(authError);
-        setState({ status: 'error', error: errorMessage });
+        setState({ status: "error", error: errorMessage });
         return { success: false, error: errorMessage };
       }
 
       // Check if session was created (auto-login)
       if (authData.session) {
         await waitForSessionSync();
-        setState({ status: 'success', error: null });
-        return { 
-          success: true, 
-          redirect: '/app',
-          autoLogin: true 
+        setState({ status: "success", error: null });
+        return {
+          success: true,
+          redirect: "/app",
+          autoLogin: true,
         };
       }
 
@@ -102,49 +102,52 @@ export function useRegistration() {
 
         if (signInError) {
           // Check if email confirmation required
-          if (signInError.message.includes('Email not confirmed')) {
-            const errorMessage = 'Konto utworzone! Sprawdź swoją skrzynkę email (http://127.0.0.1:54324) i kliknij link aktywacyjny, aby móc się zalogować.';
-            setState({ status: 'error', error: errorMessage });
+          if (signInError.message.includes("Email not confirmed")) {
+            const errorMessage =
+              "Konto utworzone! Sprawdź swoją skrzynkę email (http://127.0.0.1:54324) i kliknij link aktywacyjny, aby móc się zalogować.";
+            setState({ status: "error", error: errorMessage });
             return { success: false, error: errorMessage, requiresConfirmation: true };
           }
-          
+
           // Other sign-in error - redirect to login
-          const errorMessage = 'Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.';
-          setState({ status: 'error', error: errorMessage });
-          
+          const errorMessage =
+            "Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.";
+          setState({ status: "error", error: errorMessage });
+
           // Redirect to login after delay
           setTimeout(() => {
-            window.location.href = '/login';
+            // This is intentional navigation, not a component state mutation
+            // eslint-disable-next-line react-compiler/react-compiler
+            window.location.href = "/login";
           }, 2000);
-          
+
           return { success: false, error: errorMessage, redirectToLogin: true };
         }
 
         // Successful sign in
         if (signInData.session) {
           await waitForSessionSync();
-          setState({ status: 'success', error: null });
-          return { 
-            success: true, 
-            redirect: '/app',
-            autoLogin: true 
+          setState({ status: "success", error: null });
+          return {
+            success: true,
+            redirect: "/app",
+            autoLogin: true,
           };
         }
-        
+
         // No session after sign in
-        const errorMessage = 'Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.';
-        setState({ status: 'error', error: errorMessage });
+        const errorMessage = "Konto utworzone, ale nie udało się automatycznie zalogować. Przejdź do strony logowania.";
+        setState({ status: "error", error: errorMessage });
         return { success: false, error: errorMessage, redirectToLogin: true };
       }
 
       // No user created - shouldn't happen
-      const errorMessage = 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
-      setState({ status: 'error', error: errorMessage });
+      const errorMessage = "Wystąpił błąd podczas rejestracji. Spróbuj ponownie.";
+      setState({ status: "error", error: errorMessage });
       return { success: false, error: errorMessage };
-
-    } catch (err) {
-      const errorMessage = 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
-      setState({ status: 'error', error: errorMessage });
+    } catch {
+      const errorMessage = "Wystąpił błąd podczas rejestracji. Spróbuj ponownie.";
+      setState({ status: "error", error: errorMessage });
       return { success: false, error: errorMessage };
     }
   }, []);
@@ -153,15 +156,14 @@ export function useRegistration() {
    * Reset state
    */
   const reset = useCallback(() => {
-    setState({ status: 'idle', error: null });
+    setState({ status: "idle", error: null });
   }, []);
 
   return {
     register,
     reset,
-    isLoading: state.status === 'loading',
+    isLoading: state.status === "loading",
     error: state.error,
     status: state.status,
   };
 }
-

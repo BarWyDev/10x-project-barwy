@@ -1,11 +1,11 @@
 /**
  * EditFlashcardDialog Component
- * 
+ *
  * Dialog for editing an existing flashcard's content.
  * Uses Shadcn/ui Dialog component.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,11 +13,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import type { FlashcardEntity } from '@/types';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { FlashcardEntity } from "@/types";
 
 interface EditFlashcardDialogProps {
   flashcard: FlashcardEntity | null;
@@ -26,15 +26,10 @@ interface EditFlashcardDialogProps {
   onFlashcardUpdated?: () => void;
 }
 
-export function EditFlashcardDialog({
-  flashcard,
-  open,
-  onOpenChange,
-  onFlashcardUpdated,
-}: EditFlashcardDialogProps) {
+export function EditFlashcardDialog({ flashcard, open, onOpenChange, onFlashcardUpdated }: EditFlashcardDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [frontContent, setFrontContent] = useState('');
-  const [backContent, setBackContent] = useState('');
+  const [frontContent, setFrontContent] = useState("");
+  const [backContent, setBackContent] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   // Update form when flashcard changes
@@ -53,12 +48,12 @@ export function EditFlashcardDialog({
     if (!flashcard) return;
 
     if (!frontContent.trim()) {
-      setError('Awers fiszki nie może być pusty');
+      setError("Awers fiszki nie może być pusty");
       return;
     }
 
     if (!backContent.trim()) {
-      setError('Rewers fiszki nie może być pusty');
+      setError("Rewers fiszki nie może być pusty");
       return;
     }
 
@@ -66,9 +61,9 @@ export function EditFlashcardDialog({
 
     try {
       const response = await fetch(`/api/flashcards/${flashcard.id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           front_content: frontContent.trim(),
@@ -78,19 +73,19 @@ export function EditFlashcardDialog({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.error?.message || 'Nie udało się zaktualizować fiszki');
+        throw new Error(errorData?.error?.message || "Nie udało się zaktualizować fiszki");
       }
 
       // Success - close dialog
       onOpenChange(false);
-      
+
       // Callback to refresh parent component
       if (onFlashcardUpdated) {
         onFlashcardUpdated();
       }
     } catch (err) {
-      console.error('Error updating flashcard:', err);
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd');
+      console.error("Error updating flashcard:", err);
+      setError(err instanceof Error ? err.message : "Wystąpił błąd");
     } finally {
       setIsLoading(false);
     }
@@ -114,9 +109,7 @@ export function EditFlashcardDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Edytuj fiszkę</DialogTitle>
-            <DialogDescription>
-              Zaktualizuj zawartość fiszki. Zmiany zostaną zapisane natychmiast.
-            </DialogDescription>
+            <DialogDescription>Zaktualizuj zawartość fiszki. Zmiany zostaną zapisane natychmiast.</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -132,11 +125,8 @@ export function EditFlashcardDialog({
                 maxLength={1000}
                 rows={3}
                 disabled={isLoading}
-                autoFocus
               />
-              <p className="text-xs text-gray-500">
-                {frontContent.length}/1000 znaków
-              </p>
+              <p className="text-xs text-gray-500">{frontContent.length}/1000 znaków</p>
             </div>
 
             <div className="space-y-2">
@@ -152,9 +142,7 @@ export function EditFlashcardDialog({
                 rows={5}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
-                {backContent.length}/2000 znaków
-              </p>
+              <p className="text-xs text-gray-500">{backContent.length}/2000 znaków</p>
             </div>
 
             {error && (
@@ -165,16 +153,11 @@ export function EditFlashcardDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
               Anuluj
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
+              {isLoading ? "Zapisywanie..." : "Zapisz zmiany"}
             </Button>
           </DialogFooter>
         </form>
@@ -182,4 +165,3 @@ export function EditFlashcardDialog({
     </Dialog>
   );
 }
-

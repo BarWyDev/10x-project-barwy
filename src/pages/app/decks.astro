@@ -1,20 +1,20 @@
 ---
 /**
  * Decks Page
- * 
+ *
  * Displays all user's decks with flashcard counts.
  * Allows viewing, creating, and deleting decks.
  */
 import AppLayout from "../../layouts/AppLayout.astro";
-import { DecksView } from '../../components/dashboard/DecksView';
-import { DeckService } from '../../lib/services/deck.service';
+import { DecksView } from "../../components/dashboard/DecksView";
+import { DeckService } from "../../lib/services/deck.service";
 
 // Get authenticated user from middleware
 const user = Astro.locals.user;
 
 // Defense in depth - redirect if no user
 if (!user) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 
 // Use authenticated user's ID
@@ -28,24 +28,26 @@ let error = null;
 try {
   decks = await deckService.getAllDecks(userId);
 } catch (e) {
-  console.error('Error fetching decks:', e);
-  error = e instanceof Error ? e.message : 'Failed to load decks';
+  console.error("Error fetching decks:", e);
+  error = e instanceof Error ? e.message : "Failed to load decks";
 }
 ---
 
 <AppLayout title="Moje Talie - Generator Fiszek">
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
     <div class="container mx-auto py-8 px-4">
-      {error ? (
-        <div class="max-w-2xl mx-auto">
-          <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <p class="text-red-800 font-medium">❌ Błąd ładowania talii</p>
-            <p class="text-red-600 text-sm mt-1">{error}</p>
+      {
+        error ? (
+          <div class="max-w-2xl mx-auto">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+              <p class="text-red-800 font-medium">❌ Błąd ładowania talii</p>
+              <p class="text-red-600 text-sm mt-1">{error}</p>
+            </div>
           </div>
-        </div>
-      ) : (
-        <DecksView decks={decks} client:load />
-      )}
+        ) : (
+          <DecksView decks={decks} client:load />
+        )
+      }
     </div>
   </div>
 </AppLayout>
@@ -66,4 +68,3 @@ try {
     animation: fadeIn 0.6s ease-out;
   }
 </style>
-

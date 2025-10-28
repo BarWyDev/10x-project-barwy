@@ -1,24 +1,17 @@
 /**
  * FlashcardList Component
- * 
+ *
  * Displays a paginated table of flashcards with edit and delete actions.
  * Handles loading states, empty states, and optimistic updates.
  */
 
-import { useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import type { FlashcardDTO, PaginationInfo } from '@/types';
+import { useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { FlashcardDTO, PaginationInfo } from "@/types";
 
 export interface FlashcardListProps {
   flashcards: FlashcardDTO[];
@@ -42,14 +35,14 @@ export function FlashcardList({
   const handleDelete = async (id: string) => {
     if (deletingIds.has(id)) return;
 
-    const confirmed = window.confirm('Czy na pewno chcesz usunąć tę fiszkę?');
+    const confirmed = window.confirm("Czy na pewno chcesz usunąć tę fiszkę?");
     if (!confirmed) return;
 
-    setDeletingIds(prev => new Set(prev).add(id));
+    setDeletingIds((prev) => new Set(prev).add(id));
     try {
       await onDelete(id);
     } finally {
-      setDeletingIds(prev => {
+      setDeletingIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
         return next;
@@ -59,16 +52,16 @@ export function FlashcardList({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pl-PL', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return date.toLocaleDateString("pl-PL", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
-  const truncate = (text: string, maxLength: number = 60) => {
+  const truncate = (text: string, maxLength = 60) => {
     if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + '...';
+    return text.slice(0, maxLength) + "...";
   };
 
   // Loading state
@@ -87,12 +80,8 @@ export function FlashcardList({
     return (
       <Alert>
         <AlertDescription className="text-center py-8">
-          <p className="text-lg font-medium text-gray-700 mb-2">
-            Nie masz jeszcze żadnych fiszek
-          </p>
-          <p className="text-sm text-gray-500">
-            Wygeneruj je za pomocą AI lub dodaj ręcznie
-          </p>
+          <p className="text-lg font-medium text-gray-700 mb-2">Nie masz jeszcze żadnych fiszek</p>
+          <p className="text-sm text-gray-500">Wygeneruj je za pomocą AI lub dodaj ręcznie</p>
         </AlertDescription>
       </Alert>
     );
@@ -113,24 +102,13 @@ export function FlashcardList({
           </TableHeader>
           <TableBody>
             {flashcards.map((flashcard) => (
-              <TableRow 
-                key={flashcard.id}
-                className={deletingIds.has(flashcard.id) ? 'opacity-50' : ''}
-              >
-                <TableCell className="font-medium">
-                  {truncate(flashcard.front_content)}
-                </TableCell>
+              <TableRow key={flashcard.id} className={deletingIds.has(flashcard.id) ? "opacity-50" : ""}>
+                <TableCell className="font-medium">{truncate(flashcard.front_content)}</TableCell>
+                <TableCell>{truncate(flashcard.back_content)}</TableCell>
+                <TableCell className="text-sm text-gray-500">{formatDate(flashcard.created_at)}</TableCell>
                 <TableCell>
-                  {truncate(flashcard.back_content)}
-                </TableCell>
-                <TableCell className="text-sm text-gray-500">
-                  {formatDate(flashcard.created_at)}
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    variant={flashcard.ai_generated ? 'default' : 'secondary'}
-                  >
-                    {flashcard.ai_generated ? 'AI' : 'Ręcznie'}
+                  <Badge variant={flashcard.ai_generated ? "default" : "secondary"}>
+                    {flashcard.ai_generated ? "AI" : "Ręcznie"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right space-x-2">
@@ -148,7 +126,7 @@ export function FlashcardList({
                     onClick={() => handleDelete(flashcard.id)}
                     disabled={deletingIds.has(flashcard.id)}
                   >
-                    {deletingIds.has(flashcard.id) ? 'Usuwanie...' : 'Usuń'}
+                    {deletingIds.has(flashcard.id) ? "Usuwanie..." : "Usuń"}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -161,8 +139,7 @@ export function FlashcardList({
       {pagination.total_pages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Strona {pagination.page} z {pagination.total_pages} 
-            ({pagination.total} fiszek)
+            Strona {pagination.page} z {pagination.total_pages}({pagination.total} fiszek)
           </p>
           <div className="flex gap-2">
             <Button
@@ -187,4 +164,3 @@ export function FlashcardList({
     </div>
   );
 }
-

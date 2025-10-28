@@ -1,13 +1,13 @@
 /**
  * Page Object Model - Dashboard Page
- * 
+ *
  * Best practices demonstrowane tutaj:
  * - Page Object Model for complex pages
  * - Component-based locators
  * - Waiting strategies
  */
 
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 export class DashboardPage {
   readonly page: Page;
@@ -20,13 +20,13 @@ export class DashboardPage {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Locators
-    this.welcomeMessage = page.getByRole('heading', { name: /witaj|welcome/i });
-    this.deckSelector = page.getByRole('combobox', { name: /wybierz talię|select deck/i });
-    this.generateButton = page.getByRole('button', { name: /generuj|generate/i });
-    this.flashcardList = page.getByRole('list', { name: /fiszki|flashcards/i });
-    this.logoutButton = page.getByRole('button', { name: /wyloguj|logout/i });
+    this.welcomeMessage = page.getByRole("heading", { name: /witaj|welcome/i });
+    this.deckSelector = page.getByRole("combobox", { name: /wybierz talię|select deck/i });
+    this.generateButton = page.getByRole("button", { name: /generuj|generate/i });
+    this.flashcardList = page.getByRole("list", { name: /fiszki|flashcards/i });
+    this.logoutButton = page.getByRole("button", { name: /wyloguj|logout/i });
     this.usageLimitIndicator = page.getByText(/wykorzystanie|usage/i);
   }
 
@@ -34,8 +34,8 @@ export class DashboardPage {
    * Navigate to dashboard
    */
   async goto() {
-    await this.page.goto('/app');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/app");
+    await this.page.waitForLoadState("networkidle");
   }
 
   /**
@@ -50,7 +50,7 @@ export class DashboardPage {
    */
   async selectDeck(deckName: string) {
     await this.deckSelector.click();
-    await this.page.getByRole('option', { name: deckName }).click();
+    await this.page.getByRole("option", { name: deckName }).click();
   }
 
   /**
@@ -64,7 +64,7 @@ export class DashboardPage {
    * Get number of flashcards in list
    */
   async getFlashcardCount() {
-    const items = await this.page.getByRole('listitem').count();
+    const items = await this.page.getByRole("listitem").count();
     return items;
   }
 
@@ -73,7 +73,7 @@ export class DashboardPage {
    */
   async logout() {
     await this.logoutButton.click();
-    await this.page.waitForURL('/login');
+    await this.page.waitForURL("/login");
   }
 
   /**
@@ -81,9 +81,7 @@ export class DashboardPage {
    */
   async waitForGeneration() {
     await this.page.waitForResponse(
-      (response) => response.url().includes('/api/flashcards/generate') && response.status() === 200
+      (response) => response.url().includes("/api/flashcards/generate") && response.status() === 200
     );
   }
 }
-
-

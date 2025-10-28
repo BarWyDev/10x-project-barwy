@@ -1,20 +1,20 @@
 /**
  * Przykładowy test komponentu React
- * 
+ *
  * Best practices demonstrowane tutaj:
  * - Testing Library best practices (query by role, user events)
  * - Component rendering and interactions
  * - Accessibility testing
  * - User event simulation
- * 
+ *
  * UWAGA: Ten test jest przykładem - komponent może nie istnieć lub mieć inną implementację
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { renderWithProviders, screen, userEvent } from '../../../helpers/test-utils';
-import { CharacterCounter } from '@/components/dashboard/CharacterCounter';
+import { describe, it, expect, beforeEach } from "vitest";
+import { renderWithProviders, screen } from "../../../helpers/test-utils";
+import { CharacterCounter } from "@/components/dashboard/CharacterCounter";
 
-describe.skip('CharacterCounter', () => {
+describe.skip("CharacterCounter", () => {
   const defaultProps = {
     currentLength: 100,
     maxLength: 500,
@@ -24,7 +24,7 @@ describe.skip('CharacterCounter', () => {
     // Reset mocks if needed
   });
 
-  it('should render character count', () => {
+  it("should render character count", () => {
     // Arrange & Act
     renderWithProviders(<CharacterCounter {...defaultProps} />);
 
@@ -32,7 +32,7 @@ describe.skip('CharacterCounter', () => {
     expect(screen.getByText(/100.*500/i)).toBeInTheDocument();
   });
 
-  it('should show warning when near limit', () => {
+  it("should show warning when near limit", () => {
     // Arrange
     const nearLimitProps = {
       currentLength: 450,
@@ -47,7 +47,7 @@ describe.skip('CharacterCounter', () => {
     expect(counter).toBeInTheDocument();
   });
 
-  it('should show error when over limit', () => {
+  it("should show error when over limit", () => {
     // Arrange
     const overLimitProps = {
       currentLength: 550,
@@ -62,7 +62,7 @@ describe.skip('CharacterCounter', () => {
     expect(counter).toBeInTheDocument();
   });
 
-  it('should update when props change', () => {
+  it("should update when props change", () => {
     // Arrange
     const { rerender } = renderWithProviders(<CharacterCounter {...defaultProps} />);
     expect(screen.getByText(/100.*500/i)).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe.skip('CharacterCounter', () => {
     expect(screen.getByText(/200.*500/i)).toBeInTheDocument();
   });
 
-  it('should be accessible', () => {
+  it("should be accessible", () => {
     // Arrange & Act
     renderWithProviders(<CharacterCounter {...defaultProps} />);
 
@@ -84,4 +84,3 @@ describe.skip('CharacterCounter', () => {
     expect(counter).toBeInTheDocument();
   });
 });
-

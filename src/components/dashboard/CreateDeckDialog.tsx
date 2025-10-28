@@ -1,11 +1,11 @@
 /**
  * CreateDeckDialog Component
- * 
+ *
  * Dialog for creating a new deck with name and optional description.
  * Uses Shadcn/ui Dialog component.
  */
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,11 +14,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CreateDeckDialogProps {
   onDeckCreated?: () => void;
@@ -27,8 +27,8 @@ interface CreateDeckDialogProps {
 export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,17 +36,17 @@ export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
     setError(null);
 
     if (!name.trim()) {
-      setError('Nazwa talii jest wymagana');
+      setError("Nazwa talii jest wymagana");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/decks', {
-        method: 'POST',
+      const response = await fetch("/api/decks", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: name.trim(),
@@ -56,21 +56,21 @@ export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.error?.message || 'Nie udało się utworzyć talii');
+        throw new Error(errorData?.error?.message || "Nie udało się utworzyć talii");
       }
 
       // Success - close dialog and reset form
       setOpen(false);
-      setName('');
-      setDescription('');
-      
+      setName("");
+      setDescription("");
+
       // Callback to refresh parent component
       if (onDeckCreated) {
         onDeckCreated();
       }
     } catch (err) {
-      console.error('Error creating deck:', err);
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd');
+      console.error("Error creating deck:", err);
+      setError(err instanceof Error ? err.message : "Wystąpił błąd");
     } finally {
       setIsLoading(false);
     }
@@ -81,8 +81,8 @@ export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
       setOpen(newOpen);
       if (!newOpen) {
         // Reset form when closing
-        setName('');
-        setDescription('');
+        setName("");
+        setDescription("");
         setError(null);
       }
     }
@@ -114,14 +114,11 @@ export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
                 onChange={(e) => setName(e.target.value)}
                 maxLength={100}
                 disabled={isLoading}
-                autoFocus
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deck-description">
-                Opis (opcjonalnie)
-              </Label>
+              <Label htmlFor="deck-description">Opis (opcjonalnie)</Label>
               <Textarea
                 id="deck-description"
                 placeholder="Krótki opis talii..."
@@ -141,16 +138,11 @@ export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
               Anuluj
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Tworzenie...' : 'Utwórz talię'}
+              {isLoading ? "Tworzenie..." : "Utwórz talię"}
             </Button>
           </DialogFooter>
         </form>
@@ -158,4 +150,3 @@ export function CreateDeckDialog({ onDeckCreated }: CreateDeckDialogProps) {
     </Dialog>
   );
 }
-

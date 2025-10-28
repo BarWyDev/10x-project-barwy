@@ -1,10 +1,10 @@
 /**
  * DeleteConfirmDialog Component
- * 
+ *
  * Reusable confirmation dialog for delete actions
  */
 
-import React from 'react';
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 export interface DeleteConfirmDialogProps {
   open: boolean;
@@ -31,10 +31,10 @@ export function DeleteConfirmDialog({
   open,
   onOpenChange,
   onConfirm,
-  title = 'Czy na pewno?',
-  description = 'Tej operacji nie można cofnąć.',
-  confirmText = 'Usuń',
-  cancelText = 'Anuluj',
+  title = "Czy na pewno?",
+  description = "Tej operacji nie można cofnąć.",
+  confirmText = "Usuń",
+  cancelText = "Anuluj",
   isLoading = false,
 }: DeleteConfirmDialogProps) {
   const handleConfirm = () => {
@@ -50,19 +50,16 @@ export function DeleteConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>
-            {cancelText}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isLoading ? 'Usuwanie...' : confirmText}
+            {isLoading ? "Usuwanie..." : confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
 }
-

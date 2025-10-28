@@ -1,18 +1,14 @@
 /**
  * useFlashcardGenerator Hook
- * 
+ *
  * Manages the state and logic for AI flashcard generation.
  * Handles validation, API calls, and usage limit tracking.
  */
 
-import { useState, useCallback } from 'react';
-import { generateFlashcards, APIError } from '../api/flashcards.api';
-import { validateGenerationText, isUsageLimitExceeded } from '../utils/validation';
-import type { 
-  GenerateFlashcardsResponse, 
-  UsageInfo,
-  ErrorResponse,
-} from '../../types';
+import { useState, useCallback } from "react";
+import { generateFlashcards, APIError } from "../api/flashcards.api";
+import { validateGenerationText, isUsageLimitExceeded } from "../utils/validation";
+import type { GenerateFlashcardsResponse, UsageInfo, ErrorResponse } from "../../types";
 
 interface GeneratorFormErrors {
   text?: string;
@@ -24,29 +20,24 @@ export interface UseFlashcardGeneratorReturn {
   isGenerating: boolean;
   error: ErrorResponse | null;
   usageInfo: UsageInfo | null;
-  
+
   // Actions
   setText: (text: string) => void;
   generateFlashcards: (deckId: string, demo?: boolean) => Promise<GenerateFlashcardsResponse | null>;
   resetError: () => void;
   setUsageInfo: (info: UsageInfo) => void;
-  
+
   // Validation
   isValid: boolean;
   validationErrors: GeneratorFormErrors;
   canGenerate: boolean;
 }
 
-export function useFlashcardGenerator(
-  initialUsageInfo?: UsageInfo,
-  demoMode: boolean = false
-): UseFlashcardGeneratorReturn {
-  const [text, setText] = useState('');
+export function useFlashcardGenerator(initialUsageInfo?: UsageInfo, demoMode = false): UseFlashcardGeneratorReturn {
+  const [text, setText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<ErrorResponse | null>(null);
-  const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(
-    initialUsageInfo || null
-  );
+  const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(initialUsageInfo || null);
 
   // Validation
   const validationResult = validateGenerationText(text);
@@ -56,19 +47,17 @@ export function useFlashcardGenerator(
   const isValid = validationResult.isValid;
 
   // Check if user can generate (within daily limit)
-  const canGenerate = usageInfo
-    ? !isUsageLimitExceeded(usageInfo.total_generated_today, usageInfo.daily_limit)
-    : true;
+  const canGenerate = usageInfo ? !isUsageLimitExceeded(usageInfo.total_generated_today, usageInfo.daily_limit) : true;
 
   // Generate flashcards
   const handleGenerate = useCallback(
-    async (deckId: string, demo: boolean = false): Promise<GenerateFlashcardsResponse | null> => {
+    async (deckId: string, demo = false): Promise<GenerateFlashcardsResponse | null> => {
       // Validate before generating
       if (!isValid) {
         setError({
           error: {
-            code: 'VALIDATION_ERROR',
-            message: validationErrors.text || 'Niepoprawne dane',
+            code: "VALIDATION_ERROR",
+            message: validationErrors.text || "Niepoprawne dane",
           },
         });
         return null;
@@ -77,8 +66,8 @@ export function useFlashcardGenerator(
       if (!canGenerate && !demoMode && !demo) {
         setError({
           error: {
-            code: 'LIMIT_EXCEEDED',
-            message: 'Osiągnięto dzienny limit generowania',
+            code: "LIMIT_EXCEEDED",
+            message: "Osiągnięto dzienny limit generowania",
           },
         });
         return null;
@@ -88,10 +77,13 @@ export function useFlashcardGenerator(
       setError(null);
 
       try {
-        const response = await generateFlashcards({
-          deck_id: deckId,
-          text: text.trim(),
-        }, demo || demoMode);
+        const response = await generateFlashcards(
+          {
+            deck_id: deckId,
+            text: text.trim(),
+          },
+          demo || demoMode
+        );
 
         // Update usage info
         setUsageInfo(response.usage);
@@ -101,23 +93,23 @@ export function useFlashcardGenerator(
         if (err instanceof APIError) {
           setError({
             error: {
-              code: err.code as any,
+              code: err.code,
               message: err.message,
               details: err.details,
             },
           });
-        } else if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        } else if (err instanceof TypeError && err.message === "Failed to fetch") {
           setError({
             error: {
-              code: 'INTERNAL_ERROR',
-              message: 'Problem z połączeniem. Sprawdź internet i spróbuj ponownie.',
+              code: "INTERNAL_ERROR" as const,
+              message: "Problem z połączeniem. Sprawdź internet i spróbuj ponownie.",
             },
           });
         } else {
           setError({
             error: {
-              code: 'INTERNAL_ERROR',
-              message: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.',
+              code: "INTERNAL_ERROR" as const,
+              message: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
             },
           });
         }
@@ -147,4 +139,3 @@ export function useFlashcardGenerator(
     canGenerate,
   };
 }
-

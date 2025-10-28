@@ -1,20 +1,16 @@
-import type { APIRoute } from 'astro';
-import { z } from 'zod';
-import { DeckService } from '../../../lib/services/deck.service';
-import { FlashcardService } from '../../../lib/services/flashcard.service';
-import { 
-  APIError, 
-  UnauthorizedError, 
-  ValidationError 
-} from '../../../lib/errors/api-errors';
-import type { ErrorResponse } from '../../../types';
+import type { APIRoute } from "astro";
+import { z } from "zod";
+import { DeckService } from "../../../lib/services/deck.service";
+import { FlashcardService } from "../../../lib/services/flashcard.service";
+import { APIError, UnauthorizedError, ValidationError } from "../../../lib/errors/api-errors";
+import type { ErrorResponse, ErrorCode } from "../../../types";
 
 export const prerender = false;
 
 const createFlashcardSchema = z.object({
-  deck_id: z.string().uuid('Invalid deck ID format'),
-  front_content: z.string().trim().min(1, 'Front content cannot be empty').max(1000),
-  back_content: z.string().trim().min(1, 'Back content cannot be empty').max(2000),
+  deck_id: z.string().uuid("Invalid deck ID format"),
+  front_content: z.string().trim().min(1, "Front content cannot be empty").max(1000),
+  back_content: z.string().trim().min(1, "Back content cannot be empty").max(2000),
 });
 
 /**
@@ -26,12 +22,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // 1. AUTHENTICATION
     // ========================================================================
     if (!locals.user) {
-      throw new UnauthorizedError('Authentication required');
+      throw new UnauthorizedError("Authentication required");
     }
 
     const supabase = locals.supabase;
     if (!supabase) {
-      throw new Error('Supabase client not initialized');
+      throw new Error("Supabase client not initialized");
     }
     const userId = locals.user.id;
 
@@ -42,14 +38,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     try {
       body = await request.json();
     } catch {
-      throw new ValidationError('Invalid JSON in request body');
+      throw new ValidationError("Invalid JSON in request body");
     }
 
     const validationResult = createFlashcardSchema.safeParse(body);
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
-      throw new ValidationError('Invalid request data', {
-        field: firstError.path.join('.'),
+      throw new ValidationError("Invalid request data", {
+        field: firstError.path.join("."),
         reason: firstError.message,
       });
     }
@@ -78,34 +74,33 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // ========================================================================
     return new Response(JSON.stringify(newFlashcard), {
       status: 201, // 201 Created
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
     if (error instanceof APIError) {
       const errorResponse: ErrorResponse = {
         error: {
-          code: error.code as any,
+          code: error.code as ErrorCode,
           message: error.message,
           details: error.details,
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: error.statusCode,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
-    console.error('Unexpected error in create flashcard endpoint:', error);
+    console.error("Unexpected error in create flashcard endpoint:", error);
     const errorResponse: ErrorResponse = {
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred',
+        code: "INTERNAL_ERROR",
+        message: "An unexpected error occurred",
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

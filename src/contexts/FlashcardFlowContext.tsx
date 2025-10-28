@@ -1,20 +1,20 @@
 /**
  * FlashcardFlowContext
- * 
+ *
  * Manages the state and flow of the flashcard creation process:
  * 1. Deck selection
  * 2. Generation
  * 3. Verification
  * 4. Success
- * 
+ *
  * Eliminates prop drilling and centralizes state management
  */
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { ReactNode } from 'react';
-import type { DeckDTO, FlashcardProposal, UsageInfo, FlashcardDTO } from '@/types';
+import React, { createContext, useContext, useState, useCallback } from "react";
+import type { ReactNode } from "react";
+import type { DeckDTO, FlashcardProposal, UsageInfo, FlashcardDTO } from "@/types";
 
-type AppView = 'deck-selection' | 'generator' | 'verification' | 'success';
+type AppView = "deck-selection" | "generator" | "verification" | "success";
 
 interface FlashcardFlowState {
   currentView: AppView;
@@ -39,7 +39,7 @@ interface FlashcardFlowContextValue extends FlashcardFlowState {
 const FlashcardFlowContext = createContext<FlashcardFlowContextValue | undefined>(undefined);
 
 const initialState: FlashcardFlowState = {
-  currentView: 'deck-selection',
+  currentView: "deck-selection",
   selectedDeck: null,
   proposals: [],
   usageInfo: null,
@@ -54,11 +54,11 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
    * Handle deck selection
    */
   const selectDeck = useCallback((deck: DeckDTO) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       selectedDeck: deck,
       returningFromGenerator: false,
-      currentView: 'generator',
+      currentView: "generator",
     }));
   }, []);
 
@@ -66,11 +66,11 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
    * Handle successful generation
    */
   const generateSuccess = useCallback((proposals: FlashcardProposal[], usage: UsageInfo) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       proposals,
       usageInfo: usage,
-      currentView: 'verification',
+      currentView: "verification",
     }));
   }, []);
 
@@ -78,7 +78,7 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
    * Handle generation error
    */
   const generateError = useCallback((error: string) => {
-    console.error('Generation error:', error);
+    console.error("Generation error:", error);
     // Error is shown in FlashcardGenerator component
   }, []);
 
@@ -86,10 +86,10 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
    * Handle successful save
    */
   const saveSuccess = useCallback((flashcards: FlashcardDTO[]) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       createdFlashcards: flashcards,
-      currentView: 'success',
+      currentView: "success",
     }));
   }, []);
 
@@ -97,19 +97,19 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
    * Handle cancel action
    */
   const cancel = useCallback(() => {
-    setState(prev => {
-      if (prev.currentView === 'verification') {
+    setState((prev) => {
+      if (prev.currentView === "verification") {
         return {
           ...prev,
-          currentView: 'generator',
+          currentView: "generator",
           proposals: [],
         };
-      } else if (prev.currentView === 'generator') {
+      } else if (prev.currentView === "generator") {
         return {
           ...prev,
           returningFromGenerator: true,
           selectedDeck: null,
-          currentView: 'deck-selection',
+          currentView: "deck-selection",
         };
       }
       return prev;
@@ -122,7 +122,7 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
   const startOver = useCallback(() => {
     setState({
       ...initialState,
-      currentView: 'deck-selection',
+      currentView: "deck-selection",
     });
   }, []);
 
@@ -130,9 +130,9 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
    * Generate more flashcards for current deck
    */
   const generateMore = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      currentView: 'generator',
+      currentView: "generator",
       proposals: [],
       createdFlashcards: [],
     }));
@@ -149,11 +149,7 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
     generateMore,
   };
 
-  return (
-    <FlashcardFlowContext.Provider value={value}>
-      {children}
-    </FlashcardFlowContext.Provider>
-  );
+  return <FlashcardFlowContext.Provider value={value}>{children}</FlashcardFlowContext.Provider>;
 }
 
 /**
@@ -161,11 +157,10 @@ export function FlashcardFlowProvider({ children }: { children: ReactNode }) {
  */
 export function useFlashcardFlow() {
   const context = useContext(FlashcardFlowContext);
-  
+
   if (context === undefined) {
-    throw new Error('useFlashcardFlow must be used within a FlashcardFlowProvider');
+    throw new Error("useFlashcardFlow must be used within a FlashcardFlowProvider");
   }
-  
+
   return context;
 }
-

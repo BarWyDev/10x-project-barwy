@@ -1,22 +1,22 @@
 /**
  * LoginForm - Formularz logowania użytkownika
- * 
+ *
  * Funkcjonalność:
  * - Walidacja formularza za pomocą react-hook-form + zod
  * - Integracja z Supabase Auth
  * - Wyświetlanie błędów walidacji i autentykacji
  * - Link do rejestracji i przypomnienia hasła
  */
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginFormData } from '@/lib/validation/auth.schemas';
-import { supabaseClient } from '@/db/supabase.client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginFormData } from "@/lib/validation/auth.schemas";
+import { supabaseClient } from "@/db/supabase.client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,13 +42,13 @@ export function LoginForm() {
 
       if (authError) {
         // Check for specific error cases
-        if (authError.message.includes('Email not confirmed')) {
-          setError('Sprawdź swoją skrzynkę email i kliknij link aktywacyjny.');
-        } else if (authError.message.includes('Invalid login credentials')) {
-          setError('Email lub hasło jest nieprawidłowe. Sprawdź dane i spróbuj ponownie.');
+        if (authError.message.includes("Email not confirmed")) {
+          setError("Sprawdź swoją skrzynkę email i kliknij link aktywacyjny.");
+        } else if (authError.message.includes("Invalid login credentials")) {
+          setError("Email lub hasło jest nieprawidłowe. Sprawdź dane i spróbuj ponownie.");
         } else {
           // Generic error message for security reasons
-          setError('Nie udało się zalogować. Sprawdź email i hasło.');
+          setError("Nie udało się zalogować. Sprawdź email i hasło.");
         }
         return;
       }
@@ -56,11 +56,11 @@ export function LoginForm() {
       if (authData.session) {
         // Success - redirect to app
         // Wait a bit for session to be saved to cookies by @supabase/ssr
-        await new Promise(resolve => setTimeout(resolve, 300));
-        window.location.replace('/app');
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        window.location.replace("/app");
       }
-    } catch (err) {
-      setError('Wystąpił błąd podczas logowania. Spróbuj ponownie.');
+    } catch {
+      setError("Wystąpił błąd podczas logowania. Spróbuj ponownie.");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,21 +69,15 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">
-          Logowanie
-        </CardTitle>
-        <CardDescription className="text-center">
-          Zaloguj się do swojego konta
-        </CardDescription>
+        <CardTitle className="text-2xl font-bold text-center">Logowanie</CardTitle>
+        <CardDescription className="text-center">Zaloguj się do swojego konta</CardDescription>
       </CardHeader>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           {error && (
             <Alert className="mb-4 border-amber-200 bg-amber-50">
-              <AlertDescription className="text-amber-800">
-                ⚠️ {error}
-              </AlertDescription>
+              <AlertDescription className="text-amber-800">⚠️ {error}</AlertDescription>
             </Alert>
           )}
 
@@ -93,14 +87,14 @@ export function LoginForm() {
               id="email"
               type="email"
               placeholder="twoj@email.pl"
-              {...register('email', {
-                required: 'Email jest wymagany',
+              {...register("email", {
+                required: "Email jest wymagany",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Nieprawidłowy format email',
+                  message: "Nieprawidłowy format email",
                 },
               })}
-              aria-invalid={errors.email ? 'true' : 'false'}
+              aria-invalid={errors.email ? "true" : "false"}
               disabled={isSubmitting}
             />
             {errors.email && (
@@ -116,14 +110,14 @@ export function LoginForm() {
               id="password"
               type="password"
               placeholder="••••••••"
-              {...register('password', {
-                required: 'Hasło jest wymagane',
+              {...register("password", {
+                required: "Hasło jest wymagane",
                 minLength: {
                   value: 6,
-                  message: 'Hasło musi mieć co najmniej 6 znaków',
+                  message: "Hasło musi mieć co najmniej 6 znaków",
                 },
               })}
-              aria-invalid={errors.password ? 'true' : 'false'}
+              aria-invalid={errors.password ? "true" : "false"}
               disabled={isSubmitting}
             />
             {errors.password && (
@@ -134,26 +128,19 @@ export function LoginForm() {
           </div>
 
           <div className="text-sm text-right">
-            <a
-              href="/forgot-password"
-              className="text-primary hover:underline"
-            >
+            <a href="/forgot-password" className="text-primary hover:underline">
               Zapomniałeś hasła?
             </a>
           </div>
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Logowanie...' : 'Zaloguj się'}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Logowanie..." : "Zaloguj się"}
           </Button>
 
           <p className="text-sm text-center text-muted-foreground">
-            Nie masz konta?{' '}
+            Nie masz konta?{" "}
             <a href="/register" className="text-primary hover:underline font-medium">
               Zarejestruj się
             </a>
@@ -163,5 +150,3 @@ export function LoginForm() {
     </Card>
   );
 }
-
-

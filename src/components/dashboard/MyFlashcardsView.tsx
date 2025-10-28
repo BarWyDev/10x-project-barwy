@@ -1,23 +1,23 @@
 /**
  * MyFlashcardsView Component
- * 
+ *
  * Displays all user flashcards grouped by deck with filtering options.
  * Provides quick view and delete functionality.
- * 
+ *
  * Refactored to use:
  * - Custom hook (useFlashcardManagement) for state management
  * - FlashcardCard component for individual cards
  * - Utility functions from formatting.ts
  */
 
-import { useState, useMemo, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { EditFlashcardDialog } from './EditFlashcardDialog';
-import { FlashcardCard } from './FlashcardCard';
-import { useFlashcardManagement } from '@/lib/hooks/useFlashcardManagement';
-import { getFlashcardPlural } from '@/lib/utils/formatting';
-import type { FlashcardEntity } from '@/types';
+import { useState, useMemo, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { EditFlashcardDialog } from "./EditFlashcardDialog";
+import { FlashcardCard } from "./FlashcardCard";
+import { useFlashcardManagement } from "@/lib/hooks/useFlashcardManagement";
+import { getFlashcardPlural } from "@/lib/utils/formatting";
+import type { FlashcardEntity } from "@/types";
 
 interface FlashcardWithDeck extends FlashcardEntity {
   deck: {
@@ -33,13 +33,8 @@ export interface MyFlashcardsViewProps {
 
 export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckName }: MyFlashcardsViewProps) {
   // Use custom hook for flashcard management
-  const {
-    flashcards,
-    handleDelete,
-    toggleExpanded,
-    isDeleting,
-    isExpanded,
-  } = useFlashcardManagement(initialFlashcards);
+  const { flashcards, handleDelete, toggleExpanded, isDeleting, isExpanded } =
+    useFlashcardManagement(initialFlashcards);
 
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
   const [editingFlashcard, setEditingFlashcard] = useState<FlashcardWithDeck | null>(null);
@@ -58,8 +53,8 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
   // Get unique decks
   const decks = useMemo(() => {
     const deckMap = new Map<string, { id: string; name: string; count: number }>();
-    
-    flashcards.forEach(flashcard => {
+
+    flashcards.forEach((flashcard) => {
       if (flashcard.deck) {
         const existing = deckMap.get(flashcard.deck.id);
         if (existing) {
@@ -81,10 +76,10 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
   const filteredFlashcards = useMemo(() => {
     // If filtering by URL parameter, show all flashcards (already filtered server-side)
     if (selectedDeckName) return flashcards;
-    
+
     // Otherwise, use client-side filter
     if (!selectedDeck) return flashcards;
-    return flashcards.filter(f => f.deck?.id === selectedDeck);
+    return flashcards.filter((f) => f.deck?.id === selectedDeck);
   }, [flashcards, selectedDeck, selectedDeckName]);
 
   // Empty state
@@ -94,13 +89,10 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold text-gray-900">
-              {selectedDeckName ? `Fiszki z talii: ${selectedDeckName}` : 'Moje Fiszki'}
+              {selectedDeckName ? `Fiszki z talii: ${selectedDeckName}` : "Moje Fiszki"}
             </h2>
             <p className="text-gray-600 mt-2">
-              {selectedDeckName 
-                ? `Brak fiszek w tej talii`
-                : `Wszystkie twoje fiszki w jednym miejscu`
-              }
+              {selectedDeckName ? `Brak fiszek w tej talii` : `Wszystkie twoje fiszki w jednym miejscu`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -119,14 +111,9 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
           <AlertDescription className="text-center py-12">
             <div className="text-6xl mb-4">📚</div>
             <p className="text-lg font-medium text-gray-700 mb-2">
-              {selectedDeckName 
-                ? `Brak fiszek w talii "${selectedDeckName}"`
-                : `Nie masz jeszcze żadnych fiszek`
-              }
+              {selectedDeckName ? `Brak fiszek w talii "${selectedDeckName}"` : `Nie masz jeszcze żadnych fiszek`}
             </p>
-            <p className="text-sm text-gray-500 mb-4">
-              Wygeneruj swoje pierwsze fiszki przy użyciu AI
-            </p>
+            <p className="text-sm text-gray-500 mb-4">Wygeneruj swoje pierwsze fiszki przy użyciu AI</p>
             <Button asChild>
               <a href="/generate">Rozpocznij generowanie</a>
             </Button>
@@ -141,13 +128,12 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-gray-900">
-            {selectedDeckName ? `Fiszki z talii: ${selectedDeckName}` : 'Moje Fiszki'}
+            {selectedDeckName ? `Fiszki z talii: ${selectedDeckName}` : "Moje Fiszki"}
           </h2>
           <p className="text-gray-600 mt-2">
-            {selectedDeckName 
+            {selectedDeckName
               ? `Wyświetlam ${flashcards.length} ${getFlashcardPlural(flashcards.length)} z tej talii`
-              : `Wszystkie twoje fiszki (${flashcards.length})`
-            }
+              : `Wszystkie twoje fiszki (${flashcards.length})`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -166,16 +152,16 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
       {!selectedDeckName && decks.length > 1 && (
         <div className="flex flex-wrap gap-2">
           <Button
-            variant={selectedDeck === null ? 'default' : 'outline'}
+            variant={selectedDeck === null ? "default" : "outline"}
             size="sm"
             onClick={() => setSelectedDeck(null)}
           >
             Wszystkie ({flashcards.length})
           </Button>
-          {decks.map(deck => (
+          {decks.map((deck) => (
             <Button
               key={deck.id}
-              variant={selectedDeck === deck.id ? 'default' : 'outline'}
+              variant={selectedDeck === deck.id ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedDeck(deck.id)}
             >
@@ -210,4 +196,3 @@ export function MyFlashcardsView({ flashcards: initialFlashcards, selectedDeckNa
     </div>
   );
 }
-

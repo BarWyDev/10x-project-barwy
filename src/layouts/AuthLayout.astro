@@ -23,7 +23,9 @@ const { title = "Autentykacja - Generator Fiszek" } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div
+      class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4"
+    >
       <slot />
     </div>
   </body>
@@ -37,5 +39,3 @@ const { title = "Autentykacja - Generator Fiszek" } = Astro.props;
     height: 100%;
   }
 </style>
-
-

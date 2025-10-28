@@ -58,6 +58,18 @@ const reactConfig = tseslint.config({
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  // Ignore helper scripts
+  {
+    ignores: [
+      "**/*.mjs",
+      "test-*.mjs",
+      "refresh-token.mjs",
+      "run-tests.mjs",
+      "test-setup.mjs",
+      "test-advanced.mjs",
+      "test-env-check.mjs",
+    ],
+  },
   baseConfig,
   jsxA11yConfig,
   reactConfig,

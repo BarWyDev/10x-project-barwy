@@ -1,6 +1,6 @@
 /**
  * Page Object Model - Login Page
- * 
+ *
  * Best practices demonstrowane tutaj:
  * - Page Object Model pattern
  * - Encapsulation of page interactions
@@ -8,7 +8,7 @@
  * - Type-safe page methods
  */
 
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 export class LoginPage {
   readonly page: Page;
@@ -21,22 +21,22 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Locators - preferujemy getByRole dla dostępności
     this.emailInput = page.getByLabel(/email/i);
     this.passwordInput = page.getByLabel(/hasło|password/i);
-    this.submitButton = page.getByRole('button', { name: /zaloguj|login/i });
-    this.errorMessage = page.getByRole('alert');
-    this.forgotPasswordLink = page.getByRole('link', { name: /zapomniałem hasła|forgot password/i });
-    this.registerLink = page.getByRole('link', { name: /zarejestruj|register/i });
+    this.submitButton = page.getByRole("button", { name: /zaloguj|login/i });
+    this.errorMessage = page.getByRole("alert");
+    this.forgotPasswordLink = page.getByRole("link", { name: /zapomniałem hasła|forgot password/i });
+    this.registerLink = page.getByRole("link", { name: /zarejestruj|register/i });
   }
 
   /**
    * Navigate to login page
    */
   async goto() {
-    await this.page.goto('/login');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/login");
+    await this.page.waitForLoadState("networkidle");
   }
 
   /**
@@ -90,5 +90,3 @@ export class LoginPage {
     await this.registerLink.click();
   }
 }
-
-

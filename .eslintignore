@@ -1,0 +1,23 @@
+# Pomocnicze skrypty testowe (nie są częścią aplikacji)
+*.mjs
+test-*.mjs
+refresh-token.mjs
+run-tests.mjs
+test-setup.mjs
+test-advanced.mjs
+test-env-check.mjs
+
+# Build output
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Playwright reports
+playwright-report/
+test-results/
+
+# Coverage
+coverage/
+

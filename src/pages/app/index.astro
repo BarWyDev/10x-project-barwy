@@ -1,28 +1,28 @@
 ---
 /**
  * My Flashcards Page
- * 
+ *
  * Displays all user's flashcards with filtering and management options.
  * Supports optional deck filtering via ?deck=<deck_id> URL parameter
  */
 import AppLayout from "../../layouts/AppLayout.astro";
-import { MyFlashcardsView } from '../../components/dashboard/MyFlashcardsView';
-import { FlashcardService } from '../../lib/services/flashcard.service';
-import { DeckService } from '../../lib/services/deck.service';
+import { MyFlashcardsView } from "../../components/dashboard/MyFlashcardsView";
+import { FlashcardService } from "../../lib/services/flashcard.service";
+import { DeckService } from "../../lib/services/deck.service";
 
 // Get authenticated user from middleware
 const user = Astro.locals.user;
 
 // Defense in depth - redirect if no user
 if (!user) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 
 // Use authenticated user's ID
 const userId = user.id;
 
 // Get optional deck filter from URL
-const deckId = Astro.url.searchParams.get('deck');
+const deckId = Astro.url.searchParams.get("deck");
 
 // Fetch deck info if filtering by deck
 let selectedDeck = null;
@@ -31,9 +31,9 @@ if (deckId) {
     const deckService = new DeckService(Astro.locals.supabase);
     selectedDeck = await deckService.getDeckById(deckId, userId);
   } catch (e) {
-    console.error('Error fetching deck:', e);
+    console.error("Error fetching deck:", e);
     // Invalid deck ID - redirect to all flashcards
-    return Astro.redirect('/app');
+    return Astro.redirect("/app");
   }
 }
 
@@ -45,28 +45,26 @@ let error = null;
 try {
   flashcards = await flashcardService.getAllFlashcards(userId, deckId || undefined);
 } catch (e) {
-  console.error('Error fetching flashcards:', e);
-  error = e instanceof Error ? e.message : 'Failed to load flashcards';
+  console.error("Error fetching flashcards:", e);
+  error = e instanceof Error ? e.message : "Failed to load flashcards";
 }
 ---
 
 <AppLayout title="Moje Fiszki - Generator Fiszek">
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
     <div class="container mx-auto py-8 px-4">
-      {error ? (
-        <div class="max-w-2xl mx-auto">
-          <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <p class="text-red-800 font-medium">❌ Błąd ładowania fiszek</p>
-            <p class="text-red-600 text-sm mt-1">{error}</p>
+      {
+        error ? (
+          <div class="max-w-2xl mx-auto">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+              <p class="text-red-800 font-medium">❌ Błąd ładowania fiszek</p>
+              <p class="text-red-600 text-sm mt-1">{error}</p>
+            </div>
           </div>
-        </div>
-      ) : (
-        <MyFlashcardsView 
-          flashcards={flashcards} 
-          selectedDeckName={selectedDeck?.name}
-          client:load 
-        />
-      )}
+        ) : (
+          <MyFlashcardsView flashcards={flashcards} selectedDeckName={selectedDeck?.name} client:load />
+        )
+      }
     </div>
   </div>
 </AppLayout>
@@ -87,9 +85,3 @@ try {
     animation: fadeIn 0.6s ease-out;
   }
 </style>
-
-
-
-
-
-

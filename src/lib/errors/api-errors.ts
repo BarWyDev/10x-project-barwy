@@ -1,6 +1,6 @@
 /**
  * Custom API Error Classes
- * 
+ *
  * These error classes provide standardized error handling across the API.
  * Each error class includes:
  * - statusCode: HTTP status code for the error
@@ -9,15 +9,17 @@
  * - details: Optional additional context about the error
  */
 
+import type { ErrorCode, ErrorDetails } from "../../types";
+
 export class APIError extends Error {
   constructor(
     public statusCode: number,
-    public code: string,
+    public code: ErrorCode,
     message: string,
-    public details?: Record<string, unknown>
+    public details?: ErrorDetails
   ) {
     super(message);
-    this.name = 'APIError';
+    this.name = "APIError";
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -27,9 +29,9 @@ export class APIError extends Error {
  * Used when request data fails validation
  */
 export class ValidationError extends APIError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(400, 'VALIDATION_ERROR', message, details);
-    this.name = 'ValidationError';
+  constructor(message: string, details?: ErrorDetails) {
+    super(400, "VALIDATION_ERROR", message, details);
+    this.name = "ValidationError";
   }
 }
 
@@ -38,9 +40,9 @@ export class ValidationError extends APIError {
  * Used when authentication is required or fails
  */
 export class UnauthorizedError extends APIError {
-  constructor(message = 'Authentication required') {
-    super(401, 'UNAUTHORIZED', message);
-    this.name = 'UnauthorizedError';
+  constructor(message = "Authentication required") {
+    super(401, "UNAUTHORIZED", message);
+    this.name = "UnauthorizedError";
   }
 }
 
@@ -50,8 +52,8 @@ export class UnauthorizedError extends APIError {
  */
 export class ForbiddenError extends APIError {
   constructor(message: string) {
-    super(403, 'FORBIDDEN', message);
-    this.name = 'ForbiddenError';
+    super(403, "FORBIDDEN", message);
+    this.name = "ForbiddenError";
   }
 }
 
@@ -61,8 +63,8 @@ export class ForbiddenError extends APIError {
  */
 export class NotFoundError extends APIError {
   constructor(message: string) {
-    super(404, 'NOT_FOUND', message);
-    this.name = 'NotFoundError';
+    super(404, "NOT_FOUND", message);
+    this.name = "NotFoundError";
   }
 }
 
@@ -71,9 +73,9 @@ export class NotFoundError extends APIError {
  * Used when AI fails to generate flashcards from provided text
  */
 export class AIGenerationError extends APIError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(422, 'AI_GENERATION_FAILED', message, details);
-    this.name = 'AIGenerationError';
+  constructor(message: string, details?: ErrorDetails) {
+    super(422, "AI_GENERATION_FAILED", message, details);
+    this.name = "AIGenerationError";
   }
 }
 
@@ -82,9 +84,9 @@ export class AIGenerationError extends APIError {
  * Used when user exceeds daily AI generation limit
  */
 export class LimitExceededError extends APIError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(429, 'LIMIT_EXCEEDED', message, details);
-    this.name = 'LimitExceededError';
+  constructor(message: string, details?: ErrorDetails) {
+    super(429, "LIMIT_EXCEEDED", message, details);
+    this.name = "LimitExceededError";
   }
 }
 
@@ -93,9 +95,8 @@ export class LimitExceededError extends APIError {
  * Used for unexpected errors that aren't user's fault
  */
 export class InternalError extends APIError {
-  constructor(message = 'An unexpected error occurred') {
-    super(500, 'INTERNAL_ERROR', message);
-    this.name = 'InternalError';
+  constructor(message = "An unexpected error occurred") {
+    super(500, "INTERNAL_ERROR", message);
+    this.name = "InternalError";
   }
 }
-

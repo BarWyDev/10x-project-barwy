@@ -1,6 +1,6 @@
 /**
  * CreateDeckForm Component
- * 
+ *
  * Inline form for creating new decks with:
  * - Name input (required)
  * - Description textarea (optional)
@@ -8,12 +8,12 @@
  * - Cancel and submit actions
  */
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export interface CreateDeckFormProps {
   onSubmit: (data: { name: string; description?: string }) => Promise<void>;
@@ -21,17 +21,13 @@ export interface CreateDeckFormProps {
   isSubmitting: boolean;
 }
 
-export const CreateDeckForm = React.memo(({ 
-  onSubmit, 
-  onCancel, 
-  isSubmitting 
-}: CreateDeckFormProps) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+export const CreateDeckForm = React.memo(({ onSubmit, onCancel, isSubmitting }: CreateDeckFormProps) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (name.trim().length === 0) {
       return;
     }
@@ -40,15 +36,15 @@ export const CreateDeckForm = React.memo(({
       name: name.trim(),
       description: description.trim() || undefined,
     });
-    
+
     // Reset form on success
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
   };
 
   const handleCancel = () => {
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
     onCancel();
   };
 
@@ -56,9 +52,7 @@ export const CreateDeckForm = React.memo(({
     <Card>
       <CardHeader>
         <CardTitle>Utwórz nową talię</CardTitle>
-        <CardDescription>
-          Dodaj nazwę i opcjonalny opis dla swojej talii
-        </CardDescription>
+        <CardDescription>Dodaj nazwę i opcjonalny opis dla swojej talii</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -72,10 +66,9 @@ export const CreateDeckForm = React.memo(({
               maxLength={100}
               disabled={isSubmitting}
               required
-              autoFocus
             />
           </div>
-          
+
           <div>
             <Label htmlFor="deck-description">Opis (opcjonalnie)</Label>
             <Textarea
@@ -90,16 +83,11 @@ export const CreateDeckForm = React.memo(({
           </div>
 
           <div className="flex gap-2 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
               Anuluj
             </Button>
             <Button type="submit" disabled={isSubmitting || !name.trim()}>
-              {isSubmitting ? 'Tworzenie...' : 'Utwórz talię'}
+              {isSubmitting ? "Tworzenie..." : "Utwórz talię"}
             </Button>
           </div>
         </form>
@@ -108,5 +96,4 @@ export const CreateDeckForm = React.memo(({
   );
 });
 
-CreateDeckForm.displayName = 'CreateDeckForm';
-
+CreateDeckForm.displayName = "CreateDeckForm";
