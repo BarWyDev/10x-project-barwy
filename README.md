@@ -170,6 +170,34 @@ AI instructions for GitHub Copilot are available in `.github/copilot-instruction
 
 The `.windsurfrules` file contains AI configuration for Windsurf.
 
+## Deployment
+
+This application can be deployed to various platforms:
+
+### Deploy to Mikrus (Polish VPS Provider)
+
+Full deployment guide for Mikrus hosting:
+
+- 📖 **[Quick Start (5 min)](MIKRUS-QUICK-START.md)** - Fast deployment guide
+- 📚 **[Complete Guide](MIKRUS-DEPLOYMENT.md)** - Detailed deployment instructions
+- 🔧 **Preparation Scripts**:
+  - Windows: `.\prepare-deployment.ps1`
+  - Linux/macOS: `./prepare-deployment.sh`
+
+### Deploy to Other Platforms
+
+The application uses **Astro with SSR** and can be deployed to:
+
+- **Vercel** - Automatic deployment with GitHub integration
+- **Netlify** - Full SSR support
+- **AWS/GCP/Azure** - Using Docker or Node.js
+- **Any VPS** - Following the Mikrus guide
+
+**Requirements:**
+- Node.js 22.x
+- Environment variables (see `env.example.txt`)
+- Supabase project (backend)
+
 ## Contributing
 
 Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.

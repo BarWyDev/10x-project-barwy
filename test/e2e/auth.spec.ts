@@ -43,7 +43,7 @@ test.describe("Authentication", () => {
     // Assert
     await expect(loginPage.errorMessage).toBeVisible();
     const errorText = await loginPage.getErrorMessage();
-    expect(errorText).toContain("nieprawidłowe");
+    expect(errorText).toContain("Nie udało się zalogować");
   });
 
   test("should show validation errors for empty fields", async ({ page }) => {

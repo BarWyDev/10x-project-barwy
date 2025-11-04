@@ -9,7 +9,8 @@ dist/
 .env
 .env.local
 .env.production.local
-.env.*.local
+.env.*.
+.env.production
 
 # Logs
 logs
