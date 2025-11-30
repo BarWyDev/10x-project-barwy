@@ -1,46 +1,34 @@
-# Dependency directories
+# N8N Test Documentation Agent - Test Results
+test-results/
+*.html
+
+# Node modules (if test scripts installed dependencies)
 node_modules/
 
-# Build outputs
-dist/
-.astro/
-
-# Environment files
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
 .env
-.env.local
-.env.production.local
-.env.*.
-.env.production
+.venv
+env/
+venv/
 
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Test outputs
-test-results/
-playwright-report/
-coverage/
-.nyc_output/
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# IDE files
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Playwright
-/test-results/
-/playwright-report/
-/playwright/.cache/
-
-# Vitest
-coverage/
-.vitest/
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
